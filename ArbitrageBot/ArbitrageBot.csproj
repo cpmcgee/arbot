@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIs\Bitfinex.cs" />
+    <Compile Include="APIs\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex.cs" />
     <Compile Include="APIs\BittrexRequest.cs" />
     <Compile Include="Program.cs" />

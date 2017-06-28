@@ -13,13 +13,18 @@ namespace ArbitrageBot
         {
             while (true)
             {
-                Console.WriteLine("Input Ticker to get price");
+                Console.WriteLine("Input Ticker to get difference");
                 string ticker = Console.ReadLine();
                 try
                 {
-                    Console.WriteLine("Price:" + Bittrex.GetPriceInBtc(ticker));
+                    Console.WriteLine("Price Difference:" + (Bitfinex.GetPriceInBtc(ticker) - Bittrex.GetPriceInBtc(ticker)));
+                    //Console.WriteLine(Bitfinex.GetPriceInBtc(ticker));
+                    //Console.WriteLine(Bittrex.GetPriceInBtc(ticker));
                 }
-                catch (Exception ex) { }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
         }
     }
