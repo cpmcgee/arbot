@@ -11,20 +11,30 @@ namespace ArbitrageBot
     {
         static void Main(string[] args)
         {
-            while (true)
+            Bittrex bittrex = new Bittrex();
+            Bitfinex bitfinex = new Bitfinex();
+            for (int i = 0; i == 0; i++)
             {
-                Console.WriteLine("Input Ticker to get difference");
-                string ticker = Console.ReadLine();
-                try
+                //Console.WriteLine("Input Ticker to get difference");
+                //string ticker = Console.ReadLine();
+
+                //Console.WriteLine("Price Difference:" + (bitfinex.GetPriceInBtc(ticker) - bittrex.GetPriceInBtc(ticker)));
+                //Console.WriteLine(Bitfinex.GetPriceInBtc(ticker));
+                //Console.WriteLine(Bittrex.GetPriceInBtc(ticker));
+
+                Console.WriteLine("Price Differences:\n");
+                foreach (string symbol in bitfinex.GetSymbols())
                 {
-                    Console.WriteLine("Price Difference:" + (Bitfinex.GetPriceInBtc(ticker) - Bittrex.GetPriceInBtc(ticker)));
-                    //Console.WriteLine(Bitfinex.GetPriceInBtc(ticker));
-                    //Console.WriteLine(Bittrex.GetPriceInBtc(ticker));
+                    try
+                    {
+                        Console.WriteLine(symbol + ":" + (bitfinex.GetPriceInBtc(symbol) - bittrex.GetPriceInBtc(symbol)));
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Couldnt compare price for: " + symbol);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                Console.ReadLine();
             }
         }
     }
