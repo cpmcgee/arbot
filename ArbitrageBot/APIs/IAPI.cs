@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ArbitrageBot.APIs
 {
-    interface API
+    interface IAPI
     {
         /// <summary>
         /// Gets the price of a given symbol in BTC

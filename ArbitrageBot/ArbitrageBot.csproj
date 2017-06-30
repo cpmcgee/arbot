@@ -47,13 +47,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APIs\API.cs" />
+    <Compile Include="APIs\IAPI.cs" />
     <Compile Include="APIs\Bitfinex\Bitfinex.cs" />
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />
     <Compile Include="APIs\Bittrex\BittrexRequest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Strategies\IStrategy.cs" />
+    <Compile Include="Strategies\TestStrategy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

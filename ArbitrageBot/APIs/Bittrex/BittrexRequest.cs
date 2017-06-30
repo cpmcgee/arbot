@@ -7,7 +7,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace ArbitrageBot.APIs
+namespace ArbitrageBot.APIs.Bittrex
 {
     public class BittrexRequest
     {
@@ -69,7 +69,7 @@ namespace ArbitrageBot.APIs
         public dynamic GetMarketSummary(string market)
         {
             url += "/getmarketsummary?market=" + market;
-            return GetData(url);
+            return GetData(url); 
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace ArbitrageBot.APIs
         ///			"Created" : "2014-02-13T00:00:00"
         ///		}
         ///    ]
-        ///}
+        /// }
         /// </summary>
         /// <returns></returns>
         public dynamic GetMarkets()

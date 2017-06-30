@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArbitrageBot.APIs
+namespace ArbitrageBot.APIs.Bitfinex
 {
-    public class Bitfinex : API
+    public class Bitfinex : IAPI
     { 
         public decimal GetPriceInBtc(string symbol)
         {

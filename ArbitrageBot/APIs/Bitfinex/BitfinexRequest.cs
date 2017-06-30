@@ -7,12 +7,25 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace ArbitrageBot.APIs
+namespace ArbitrageBot.APIs.Bitfinex
 {
     public class BitfinexRequest
     {
         private string url = "https://api.bitfinex.com/v1";
-
+        /// <summary>
+        /// {
+        //  "mid":"244.755",
+        //  "bid":"244.75",
+        //  "ask":"244.76",
+        //  "last_price":"244.82",
+        //  "low":"244.2",
+        //  "high":"248.19",
+        //  "volume":"7842.11542563",
+        //  "timestamp":"1444253422.348340958"
+        //}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <returns></returns>
         public dynamic GetTicker(string market)
         {
             url += "/pubticker/" + market;
@@ -20,7 +33,7 @@ namespace ArbitrageBot.APIs
         }
 
         /// <summary>
-        /// [
+        ///[
         ///  "btcusd",
         ///  "ltcusd",
         ///  "ltcbtc",
@@ -70,7 +83,7 @@ namespace ArbitrageBot.APIs
         ///  "minimum_order_size":"0.1",
         ///  "expiration":"NA"
         ///},
-        ///...
+        ///
         ///]
         /// </summary>
         /// <returns></returns>

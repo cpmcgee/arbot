@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ArbitrageBot.APIs
+namespace ArbitrageBot.APIs.Bittrex
 {
-    public class Bittrex : API
+    public class Bittrex : IAPI
     {
         public decimal GetPriceInBtc(string symbol)
         {
