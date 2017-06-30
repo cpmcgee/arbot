@@ -52,6 +52,9 @@
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />
     <Compile Include="APIs\Bittrex\BittrexRequest.cs" />
+    <Compile Include="APIs\IRequest.cs" />
+    <Compile Include="APIs\Poloniex\Poloniex.cs" />
+    <Compile Include="APIs\Poloniex\PoloniexRequest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Strategies\IStrategy.cs" />

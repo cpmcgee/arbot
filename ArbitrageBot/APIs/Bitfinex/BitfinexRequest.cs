@@ -93,6 +93,11 @@ namespace ArbitrageBot.APIs.Bitfinex
             return GetData(url);
         }
 
+        /// <summary>
+        /// makes an api call, returns JSON payload
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         private dynamic GetData(string url)
         {
             try
