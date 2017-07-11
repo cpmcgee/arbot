@@ -9,7 +9,7 @@ using System.IO;
 
 namespace ArbitrageBot.APIs.Bittrex
 {
-    public class BittrexRequest
+    public class BittrexRequest : Request
     {
         private string url = "https://bittrex.com/api/v1.1";
 
@@ -106,7 +106,7 @@ namespace ArbitrageBot.APIs.Bittrex
             return GetData(url);
         }
 
-        private dynamic GetData(string url)
+        protected override dynamic GetData(string url)
         {
             try
             {

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ArbitrageBot.APIs.Bittrex
 {
-    public class Bittrex : IAPI
+    public class Bittrex : API
     {
-        public decimal GetPriceInBtc(string symbol)
+        public override decimal GetPriceInBtc(string symbol)
         {
             try
             {
@@ -21,7 +21,7 @@ namespace ArbitrageBot.APIs.Bittrex
             }
         }
 
-        public List<string> GetSymbols()
+        public override List<string> GetSymbols()
         {
             try
             { 
@@ -38,6 +38,12 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 throw;
             }
+        }
+
+        public override void SetKeys(string key, string secret)
+        {
+            this.key = key;
+            this.secret = secret;
         }
     }
 }

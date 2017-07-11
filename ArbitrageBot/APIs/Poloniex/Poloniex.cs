@@ -7,10 +7,9 @@ using ArbitrageBot.APIs;
 
 namespace ArbitrageBot.APIs.Poloniex
 {
-    public class Poloniex : IAPI
+    public class Poloniex : API
     {
-        
-        public List<string> GetSymbols()
+        public override List<string> GetSymbols()
         {
             try
             {
@@ -28,7 +27,7 @@ namespace ArbitrageBot.APIs.Poloniex
             }
         }
 
-        public decimal GetPriceInBtc(string ticker)
+        public override decimal GetPriceInBtc(string ticker)
         {
             try
             { 
@@ -44,6 +43,12 @@ namespace ArbitrageBot.APIs.Poloniex
             {
                 throw;
             }
+        }
+
+        public override void SetKeys(string key, string secret)
+        {
+            this.key = key;
+            this.secret = secret;
         }
     }
 }

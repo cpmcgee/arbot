@@ -9,7 +9,7 @@ using System.IO;
 
 namespace ArbitrageBot.APIs.Bitfinex
 {
-    public class BitfinexRequest
+    public class BitfinexRequest : Request
     {
         private string url = "https://api.bitfinex.com/v1";
         /// <summary>
@@ -98,7 +98,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        private dynamic GetData(string url)
+        protected override dynamic GetData(string url)
         {
             try
             {

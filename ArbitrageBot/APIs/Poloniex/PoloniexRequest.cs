@@ -9,7 +9,7 @@ using System.IO;
 
 namespace ArbitrageBot.APIs.Poloniex
 {
-    public class PoloniexRequest
+    public class PoloniexRequest : Request
     {
         private string url = "https://poloniex.com";
 
@@ -47,7 +47,7 @@ namespace ArbitrageBot.APIs.Poloniex
             return GetData(url);
         }
 
-        private dynamic GetData(string url)
+        protected override dynamic GetData(string url)
         {
             try
             {

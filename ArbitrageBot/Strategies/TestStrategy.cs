@@ -7,6 +7,7 @@ using System.IO;
 using ArbitrageBot.APIs.Bittrex;
 using ArbitrageBot.APIs.Bitfinex;
 using ArbitrageBot.APIs.Poloniex;
+using ArbitrageBot.APIs;
 
 namespace ArbitrageBot.Strategies
 {
@@ -17,7 +18,9 @@ namespace ArbitrageBot.Strategies
             Bittrex bittrex = new Bittrex();
             Bitfinex bitfinex = new Bitfinex();
             Poloniex poloniex = new Poloniex();
-
+            KeyLoader.GetKeys(bittrex);
+            KeyLoader.GetKeys(bitfinex);
+            KeyLoader.GetKeys(poloniex);
             Console.WriteLine("Price Differences: ");
             foreach (var s in coins)
             {
@@ -61,7 +64,7 @@ namespace ArbitrageBot.Strategies
             "EXP",
             "FCT",
             "FLDC",
-            "FLO ",
+            "FLO",
             "GAME",
             "GEO",
             "GNO",

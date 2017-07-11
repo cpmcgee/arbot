@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace ArbitrageBot.APIs.Bitfinex
 {
-    public class Bitfinex : IAPI
-    { 
-        public decimal GetPriceInBtc(string symbol)
+    public class Bitfinex : API
+    {
+        public override decimal GetPriceInBtc(string symbol)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
         }
 
-        public List<string> GetSymbols()
+        public override List<string> GetSymbols()
         {
             try
             {
@@ -37,6 +37,12 @@ namespace ArbitrageBot.APIs.Bitfinex
             {
                 throw;
             }
+        }
+
+        public override void SetKeys(string key, string secret)
+        {
+            this.key = key;
+            this.secret = secret;
         }
     }
 }

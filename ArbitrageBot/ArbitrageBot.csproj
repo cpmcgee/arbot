@@ -47,12 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APIs\IAPI.cs" />
+    <Compile Include="APIs\API.cs" />
     <Compile Include="APIs\Bitfinex\Bitfinex.cs" />
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />
     <Compile Include="APIs\Bittrex\BittrexRequest.cs" />
-    <Compile Include="APIs\IRequest.cs" />
+    <Compile Include="APIs\Request.cs" />
+    <Compile Include="APIs\KeyLoader.cs" />
     <Compile Include="APIs\Poloniex\Poloniex.cs" />
     <Compile Include="APIs\Poloniex\PoloniexRequest.cs" />
     <Compile Include="Program.cs" />

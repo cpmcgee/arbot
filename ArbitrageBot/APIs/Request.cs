@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ArbitrageBot.APIs
 {
-    interface IRequest
+    public abstract class Request
     {
-        dynamic GetData(string url);
+        private string url;
+        protected abstract dynamic GetData(string url);
     }
 }

@@ -6,19 +6,30 @@ using System.Threading.Tasks;
 
 namespace ArbitrageBot.APIs
 {
-    interface IAPI
+    public abstract class API
     {
+        //api keys
+        protected string key;
+        protected string secret;
+
         /// <summary>
         /// Gets the price of a given symbol in BTC
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        decimal GetPriceInBtc(string symbol);
+        public abstract decimal GetPriceInBtc(string symbol);
 
         /// <summary>
         /// returns a list of all symbols that actively trade against BTC
         /// </summary>
         /// <returns></returns>
-        List<string> GetSymbols();
+        public abstract List<string> GetSymbols();
+
+        /// <summary>
+        /// sets the key and secret key of the exchange
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="secret"></param>
+        public abstract void SetKeys(string key, string secret);
     }
 }
