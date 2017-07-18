@@ -7,6 +7,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 
+
 namespace ArbitrageBot.APIs.Bitfinex
 {
     public class BitfinexRequest : Request
@@ -95,6 +96,37 @@ namespace ArbitrageBot.APIs.Bitfinex
         {
             Url += "/symbols_details";
             return GetData(Url);
+        }
+
+
+        public dynamic PostNewOrder(string Symbol, float Amount, float Price, string Side, string Type, string Exchange, bool Is_Hidden, bool Is_Postonly, int Use_All_Available, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco)
+        {
+            Url += "/order/new";
+
+            var obj = new
+            {
+                request = Url,
+                nonce = DateTime.Now.Millisecond,
+                symbol = Symbol,
+                amount = Amount,
+                price = Price,
+                side = Side,
+                type = Type,
+                exchange = Exchange,
+                is_hidden = Is_Hidden,
+                is_postonly = Is_Postonly,
+                use_all_available = Use_All_Available,
+                ocoorder = Oco_Order,
+                buy_price_oco = Buy_Price_Oco,
+                sell_price_oco = Sell_Price_Oco 
+            };
+            
+            
+
+            string payload = JsonConvert.SerializeObject(obj);
+            
+            
+
         }
 
         /// <summary>
