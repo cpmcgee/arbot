@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
+using ArbitrageBot.Util;
 
 
 namespace ArbitrageBot.APIs.Bitfinex
@@ -125,8 +126,8 @@ namespace ArbitrageBot.APIs.Bitfinex
             
 
             string payload = JsonConvert.SerializeObject(obj);
-            
-            
+
+            return null;
 
         }
 
@@ -145,7 +146,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to access " + Url + "\n" + ex.Message);
+                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
         }

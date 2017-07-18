@@ -9,6 +9,20 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class Poloniex : API
     {
+        public override decimal GetPriceInBtc(string symbol)
+        {
+            dynamic data = new PoloniexRequest().Public().ReturnTicker();
+            foreach (var coin in data)
+            {
+                if (coin.Name == "BTC_" + symbol.ToUpper())
+                {
+                    decimal price = Convert.ToDecimal(coin.Value.last);
+                    return price;
+                }
+            }
+            throw new ArgumentException("No poloniex market for " + symbol + "/BTC");
+        }
+
         public override List<string> GetSymbols()
         {
             dynamic data = new PoloniexRequest().Public().ReturnCurrencies();
@@ -18,17 +32,6 @@ namespace ArbitrageBot.APIs.Poloniex
                 symbols.Add((string)symbol.Name);
             }
             return symbols;
-        }
-
-        public override decimal GetPriceInBtc(string ticker)
-        {
-            dynamic data = new PoloniexRequest().Public().ReturnTicker();
-            foreach (var coin in data)
-            {
-                if (coin.Name == "BTC_" + ticker.ToUpper())
-                    return coin.Value.last;
-            }
-            throw new Exception("Could not get ticker for:  " + ticker);
         }
 
         public override void SetKeys(string key, string secret)

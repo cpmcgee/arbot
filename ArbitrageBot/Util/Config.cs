@@ -10,7 +10,7 @@ namespace ArbitrageBot.Util
 {
     public static class Config
     {
-        static Dictionary<string, string> properties = new Dictionary<string, string>();
+        static Dictionary<string, string> properties;
 
         static string[] Args { get; set; }
 
@@ -25,7 +25,8 @@ namespace ArbitrageBot.Util
                         .Where(ln => pattern.IsMatch(ln))
                         .Select(ln => new KeyValuePair<string, string>(
                                                 ln.Split('=')[0],
-                                                ln.Split('=')[1])) as Dictionary<string, string>;
+                                                ln.Split('=')[1]))
+                        .ToDictionary(x => x.Key, x => x.Value);
   
         }
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
+using ArbitrageBot.Util;
 
 namespace ArbitrageBot.APIs.Poloniex
 {
@@ -62,7 +63,7 @@ namespace ArbitrageBot.APIs.Poloniex
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to access " + Url + "\n" + ex.Message);
+                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
         }

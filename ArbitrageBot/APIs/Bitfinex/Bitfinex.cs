@@ -8,7 +8,10 @@ namespace ArbitrageBot.APIs.Bitfinex
         public override decimal GetPriceInBtc(string symbol)
         {
             dynamic jsonData = new BitfinexRequest().GetTicker(symbol + "btc");
-            return Convert.ToDecimal(jsonData.last_price);
+            if (jsonData.message == "Unknown symbol")
+                throw new ArgumentException("No bitfinex market for " + symbol.ToUpper() + "/BTC");
+            decimal price = Convert.ToDecimal(jsonData.last_price);
+            return price;
         }
 
         public override List<string> GetSymbols()

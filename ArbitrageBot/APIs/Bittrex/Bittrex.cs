@@ -11,7 +11,10 @@ namespace ArbitrageBot.APIs.Bittrex
         public override decimal GetPriceInBtc(string symbol)
         {
             dynamic jsonData = new BittrexRequest().Public().GetTicker("btc-" + symbol);
-            return jsonData.result.Last;
+            if (jsonData.message == "INVALID_MARKET")
+                throw new ArgumentException("No bittrex market for " + symbol + "/BTC");
+            decimal price = Convert.ToDecimal(jsonData.result.Last);
+            return price;
         }
 
         public override List<string> GetSymbols()

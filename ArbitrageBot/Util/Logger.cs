@@ -15,12 +15,14 @@ namespace ArbitrageBot.Util
 
         public static void Initialize()
         {
-            string fileName = DateTime.Today.ToString();
-            while (File.Exists(fileName))
+            string path = Config.GetLogFilePath();
+            string fileName = DateTime.Today.ToString().Replace("/", "_").Replace(":", ".") + ".txt";
+            while (File.Exists(path + fileName))
             {
-                fileName = DateTime.Today.ToString() + "_" + ++ct;
+                fileName = DateTime.Today.ToString().Replace("/", "_").Replace(":", ".") + "_" + ++ct + ".txt";
             }
-            sw = new StreamWriter(Config.GetLogFilePath() + fileName + ".txt");
+            fileName = path + fileName;
+            sw = new StreamWriter(fileName);
         }
         
         public static void INFO(string msg)
@@ -35,6 +37,11 @@ namespace ArbitrageBot.Util
             msg = "[ERROR] " + msg;
             sw.WriteLine(msg);
             Console.WriteLine(msg);
+        }
+
+        public static void Close()
+        {
+            sw.Dispose();
         }
     }
 }

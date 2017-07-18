@@ -11,6 +11,12 @@ namespace ArbitrageBot.APIs
         //api keys
         protected string Key { get; set; }
         protected string Secret { get; set; }
+        protected Dictionary<string, decimal> btcPrices;
+
+        public API()
+        {
+            btcPrices = new Dictionary<string, decimal>();
+        }
 
         /// <summary>
         /// Gets the price of a given symbol in BTC
