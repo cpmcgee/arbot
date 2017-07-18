@@ -27,22 +27,19 @@ namespace ArbitrageBot
         /// takes an api object and sets its key attributes
         /// </summary>
         /// <param name="exchange"></param>
-        public static void GetKeys(Bittrex exchange)
+        public static Tuple<string, string> GetBittrexKeys()
         {
-            Tuple<string, string> keys = ReadFile(BITTREX_FILE);
-            exchange.SetKeys(keys.Item1, keys.Item2);
+            return ReadFile(BITTREX_FILE);
         }
 
-        public static void GetKeys(Bitfinex exchange)
+        public static Tuple<string, string> GetBitfinexKeys()
         {
-            Tuple<string, string> keys = ReadFile(BITFINEX_FILE);
-            exchange.SetKeys(keys.Item1, keys.Item2);
+            return ReadFile(BITFINEX_FILE);
         }
 
-        public static void GetKeys(Poloniex exchange)
+        public static Tuple<string, string> GetPoloniexKeys()
         {
-            Tuple<string, string> keys = ReadFile(POLONIEX_FILE);
-            exchange.SetKeys(keys.Item1, keys.Item2);
+            return ReadFile(POLONIEX_FILE);
         }
 
         /// <summary>

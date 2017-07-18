@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
@@ -148,5 +149,10 @@ namespace ArbitrageBot.APIs.Bitfinex
                 return null;
             }
         }
+
+        //Convert payload to base64
+        //Hash payload 
+        //Create http request with headers
+        //Send it
     }
 }

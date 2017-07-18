@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ArbitrageBot.Strategies;
+using ArbitrageBot.Util;
 
 namespace ArbitrageBot
 {
@@ -11,6 +12,7 @@ namespace ArbitrageBot
     {
         static void Main(string[] args)
         {
+            Config.ImportProperties("M:\\Source\\ArbitrageBot\\config.txt");
             new TestStrategy().Run();
         }
     }

@@ -29,5 +29,10 @@ namespace ArbitrageBot.APIs.Bitfinex
             this.Key = key;
             this.Secret = secret;
         }
+
+        public void GetBalancers()
+        {
+
+        }
     }
 }

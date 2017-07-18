@@ -18,9 +18,6 @@ namespace ArbitrageBot.Strategies
             Bittrex bittrex = new Bittrex();
             Bitfinex bitfinex = new Bitfinex();
             Poloniex poloniex = new Poloniex();
-            KeyLoader.GetKeys(bittrex);
-            KeyLoader.GetKeys(bitfinex);
-            KeyLoader.GetKeys(poloniex);
             Console.WriteLine("Price Differences: ");
             foreach (var s in coins)
             {
