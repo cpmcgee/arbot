@@ -101,7 +101,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         }
 
 
-        public dynamic PostNewOrder(string Symbol, float Amount, float Price, string Side, string Type, string Exchange, bool Is_Hidden, bool Is_Postonly, int Use_All_Available, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco)
+        public string PostNewOrder(string Symbol, float Amount, float Price, string Side, string Type, string Exchange, bool Is_Hidden, bool Is_Postonly, int Use_All_Available, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco)
         {
             Url += "/order/new";
 
@@ -122,13 +122,8 @@ namespace ArbitrageBot.APIs.Bitfinex
                 buy_price_oco = Buy_Price_Oco,
                 sell_price_oco = Sell_Price_Oco 
             };
-            
-            
-
-            string payload = JsonConvert.SerializeObject(obj);
-
-            return null;
-
+      
+            return JsonConvert.SerializeObject(obj);
         }
 
         /// <summary>
@@ -151,9 +146,50 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
         }
 
-        //Convert payload to base64
-        //Hash payload 
-        //Create http request with headers
-        //Send it
+        /// <summary>
+        /// makes an api call with a post and returns the payload
+        /// </summary>
+        /// <param name="Url"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected dynamic GetData(string Url, string payload)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+                request.Method = "POST";
+                request.ContentType = "application/json";
+                request.Headers.Add("Content-Type:application/json");
+                request.Headers.Add("Accept:application/json");
+                request.Headers.Add("X-BFX-APIKEY:" + KeyLoader.GetBitfinexKeys().Item2);
+                request.Headers.Add("X-BFX-PAYLOAD:" + EncodeBase64(payload));
+                request.Headers.Add("X-BFX-SIGNATURE:" + GenerateSignature(payload));
+                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
+                string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                return JsonConvert.DeserializeObject(raw);
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                return null;
+            }
+        }
+
+        protected string EncodeBase64(string payload)
+        {
+            byte[] jsonBytes = Encoding.ASCII.GetBytes(payload);
+            return Convert.ToBase64String(jsonBytes);
+        }
+
+        protected string GenerateSignature(string payload)
+        {
+            
+            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.GetBitfinexKeys().Item2);
+            HMACSHA384 hasher = new HMACSHA384(keyBytes);
+            string payload_base64 = EncodeBase64(payload);
+            byte[] payloadBytes = Encoding.ASCII.GetBytes(payload_base64);
+            return hasher.ComputeHash(payloadBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //some how this Aggregator turns it back into bytes ¯\_(ツ)_/¯
+        }
     }
 }

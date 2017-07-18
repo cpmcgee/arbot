@@ -33,7 +33,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             this.Secret = secret;
         }
 
-        public void GetBalancers()
+        public void GetBalances()
         {
 
         }
