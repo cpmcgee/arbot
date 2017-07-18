@@ -11,11 +11,16 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class PoloniexRequest : Request
     {
-        private string url = "https://poloniex.com";
+        
+
+        public PoloniexRequest()
+        {
+            Url = "https://poloniex.com";
+        }
 
         public PoloniexRequest Public()
         {
-            url += "/public";
+            Url += "/public";
             return this;
         }
 
@@ -30,8 +35,8 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <returns></returns>
         public dynamic ReturnTicker()
         {
-            url += "?command=returnTicker";
-            return GetData(url);
+            Url += "?command=returnTicker";
+            return GetData(Url);
         }
 
         /// <summary>
@@ -43,22 +48,22 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <returns></returns>
         public dynamic ReturnCurrencies()
         {
-            url += "?command=returnCurrencies";
-            return GetData(url);
+            Url += "?command=returnCurrencies";
+            return GetData(Url);
         }
 
-        protected override dynamic GetData(string url)
+        protected override dynamic GetData(string Url)
         {
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(url)).GetResponse();
+                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to access " + url + "\n" + ex.Message);
-                throw;
+                Console.WriteLine("Failed to access " + Url + "\n" + ex.Message);
+                return null;
             }
         }
     }

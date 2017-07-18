@@ -11,44 +11,30 @@ namespace ArbitrageBot.APIs.Poloniex
     {
         public override List<string> GetSymbols()
         {
-            try
+            dynamic data = new PoloniexRequest().Public().ReturnCurrencies();
+            List<string> symbols = new List<string>();
+            foreach (var symbol in data)
             {
-                dynamic data = new PoloniexRequest().Public().ReturnCurrencies();
-                List<string> symbols = new List<string>();
-                foreach (var symbol in data)
-                {
-                    symbols.Add((string)symbol.Name);
-                }
-                return symbols;
+                symbols.Add((string)symbol.Name);
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            return symbols;
         }
 
         public override decimal GetPriceInBtc(string ticker)
         {
-            try
-            { 
-                dynamic data = new PoloniexRequest().Public().ReturnTicker();
-                foreach (var coin in data)
-                {
-                    if (coin.Name == "BTC_" + ticker.ToUpper())
-                        return coin.Value.last;
-                }
-                throw new Exception("Could not get ticker for:  " + ticker);
-            }
-            catch (Exception ex)
+            dynamic data = new PoloniexRequest().Public().ReturnTicker();
+            foreach (var coin in data)
             {
-                throw;
+                if (coin.Name == "BTC_" + ticker.ToUpper())
+                    return coin.Value.last;
             }
+            throw new Exception("Could not get ticker for:  " + ticker);
         }
 
         public override void SetKeys(string key, string secret)
         {
-            this.key = key;
-            this.secret = secret;
+            this.Key = key;
+            this.Secret = secret;
         }
     }
 }

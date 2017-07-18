@@ -19,26 +19,29 @@ namespace ArbitrageBot
     static class KeyLoader
     {
         private const string FILE_PATH = "M:\\Source\\ArbitrageBot\\keys\\";
+        private const string BITTREX_FILE = "bittrex.txt";
+        private const string BITFINEX_FILE = "bitfinex.txt";
+        private const string POLONIEX_FILE = "poloniex.txt";
 
         /// <summary>
-        /// GetKeys overloaded method takes an object conforming to API abstract class and sets its key attributes
+        /// takes an api object and sets its key attributes
         /// </summary>
         /// <param name="exchange"></param>
         public static void GetKeys(Bittrex exchange)
         {
-            Tuple<string, string> keys = ReadFile(FILE_PATH + "bittrex.txt");
+            Tuple<string, string> keys = ReadFile(BITTREX_FILE);
             exchange.SetKeys(keys.Item1, keys.Item2);
         }
 
         public static void GetKeys(Bitfinex exchange)
         {
-            Tuple<string, string> keys = ReadFile(FILE_PATH + "bitfinex.txt");
+            Tuple<string, string> keys = ReadFile(BITFINEX_FILE);
             exchange.SetKeys(keys.Item1, keys.Item2);
         }
 
         public static void GetKeys(Poloniex exchange)
         {
-            Tuple<string, string> keys = ReadFile(FILE_PATH + "poloniex.txt");
+            Tuple<string, string> keys = ReadFile(POLONIEX_FILE);
             exchange.SetKeys(keys.Item1, keys.Item2);
         }
 
@@ -51,8 +54,9 @@ namespace ArbitrageBot
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static Tuple<string, string> ReadFile(string path)
+        public static Tuple<string, string> ReadFile(string file)
         {
+            string path = FILE_PATH + file;
             try
             {
                 using (StreamReader sr = new StreamReader(path))

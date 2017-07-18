@@ -9,8 +9,8 @@ namespace ArbitrageBot.APIs
     public abstract class API
     {
         //api keys
-        protected string key;
-        protected string secret;
+        protected string Key { get; set; }
+        protected string Secret { get; set; }
 
         /// <summary>
         /// Gets the price of a given symbol in BTC

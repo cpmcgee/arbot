@@ -10,40 +10,26 @@ namespace ArbitrageBot.APIs.Bittrex
     {
         public override decimal GetPriceInBtc(string symbol)
         {
-            try
-            {
-                dynamic jsonData = new BittrexRequest().Public().GetTicker("btc-" + symbol);
-                return jsonData.result.Last;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            dynamic jsonData = new BittrexRequest().Public().GetTicker("btc-" + symbol);
+            return jsonData.result.Last;
         }
 
         public override List<string> GetSymbols()
         {
-            try
-            { 
-                dynamic data = new BittrexRequest().Public().GetMarkets();
-                List<string> symbols = new List<string>();
-                foreach (var symbol in data.result)
-                {
-                    if (symbol.BaseCurrency == "BTC")
-                        symbols.Add((string)symbol.MarketCurrency);
-                }
-                return symbols;
-            }
-            catch (Exception ex)
+            dynamic data = new BittrexRequest().Public().GetMarkets();
+            List<string> symbols = new List<string>();
+            foreach (var symbol in data.result)
             {
-                throw;
+                if (symbol.BaseCurrency == "BTC")
+                    symbols.Add((string)symbol.MarketCurrency);
             }
+            return symbols;
         }
 
         public override void SetKeys(string key, string secret)
         {
-            this.key = key;
-            this.secret = secret;
+            this.Key = key;
+            this.Secret = secret;
         }
     }
 }

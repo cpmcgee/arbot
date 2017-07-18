@@ -11,7 +11,11 @@ namespace ArbitrageBot.APIs.Bitfinex
 {
     public class BitfinexRequest : Request
     {
-        private string url = "https://api.bitfinex.com/v1";
+        public BitfinexRequest()
+        {
+            Url = "https://api.bitfinex.com/v1";
+        }
+        
         /// <summary>
         /// {
         //  "mid":"244.755",
@@ -28,8 +32,8 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         public dynamic GetTicker(string market)
         {
-            url += "/pubticker/" + market;
-            return GetData(url);
+            Url += "/pubticker/" + market;
+            return GetData(Url);
         }
 
         /// <summary>
@@ -53,8 +57,8 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         public dynamic GetSymbols()
         {
-            url += "/symbools";
-            return GetData(url);
+            Url += "/symbools";
+            return GetData(Url);
         }
         
         /// <summary>
@@ -89,27 +93,27 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         public dynamic GetSymbolDetails()
         {
-            url += "/symbols_details";
-            return GetData(url);
+            Url += "/symbols_details";
+            return GetData(Url);
         }
 
         /// <summary>
         /// makes an api call, returns JSON payload
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="Url"></param>
         /// <returns></returns>
-        protected override dynamic GetData(string url)
+        protected override dynamic GetData(string Url)
         {
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(url)).GetResponse();
+                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to access " + url + "\n" + ex.Message);
-                throw;
+                Console.WriteLine("Failed to access " + Url + "\n" + ex.Message);
+                return null;
             }
         }
     }

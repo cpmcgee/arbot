@@ -11,11 +11,14 @@ namespace ArbitrageBot.APIs.Bittrex
 {
     public class BittrexRequest : Request
     {
-        private string url = "https://bittrex.com/api/v1.1";
+        public BittrexRequest()
+        {
+            Url = "https://bittrex.com/api/v1.1";
+        }
 
         public BittrexRequest Public()
         {
-            url += "/public";
+            Url += "/public";
             return this;
         }
 
@@ -36,8 +39,8 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetTicker(string market)
         {
-            url += "/getticker?market=" + market;
-            return GetData(url);
+            Url += "/getticker?market=" + market;
+            return GetData(Url);
         }
 
         /// <summary>
@@ -68,8 +71,8 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetMarketSummary(string market)
         {
-            url += "/getmarketsummary?market=" + market;
-            return GetData(url); 
+            Url += "/getmarketsummary?market=" + market;
+            return GetData(Url); 
         }
 
         /// <summary>
@@ -102,22 +105,22 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetMarkets()
         {
-            url += "/getmarkets";
-            return GetData(url);
+            Url += "/getmarkets";
+            return GetData(Url);
         }
 
-        protected override dynamic GetData(string url)
+        protected override dynamic GetData(string Url)
         {
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(url)).GetResponse();
+                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Failed to access " + url + "\n" + ex.Message);
-                throw;
+                Console.WriteLine("Failed to access " + Url + "\n" + ex.Message);
+                return null;
             }
         }
     }

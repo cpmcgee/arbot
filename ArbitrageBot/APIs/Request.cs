@@ -8,7 +8,7 @@ namespace ArbitrageBot.APIs
 {
     public abstract class Request
     {
-        private string url;
+        protected string Url { get; set; }
         protected abstract dynamic GetData(string url);
     }
 }
