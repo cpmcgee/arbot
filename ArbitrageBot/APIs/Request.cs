@@ -10,5 +10,7 @@ namespace ArbitrageBot.APIs
     {
         protected string Url { get; set; }
         protected abstract dynamic GetData(string url);
+
+        //protected 
     }
 }
