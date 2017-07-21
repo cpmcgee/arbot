@@ -162,7 +162,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        protected string GenerateSignature(string payload)
+        protected override string GenerateSignature(string payload)
         {
             
             byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.BitfinexKeys.Item2);

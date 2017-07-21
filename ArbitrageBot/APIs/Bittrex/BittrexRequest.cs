@@ -72,6 +72,52 @@ namespace ArbitrageBot.APIs.Bittrex
         ///	"success" : true,
         ///	"message" : "",
         ///	"result" : [{
+        ///			"MarketName" : "BTC-888",
+        ///			"High" : 0.00000919,
+        ///			"Low" : 0.00000820,
+        ///			"Volume" : 74339.61396015,
+        ///			"Last" : 0.00000820,
+        ///			"BaseVolume" : 0.64966963,
+        ///			"TimeStamp" : "2014-07-09T07:19:30.15",
+        ///			"Bid" : 0.00000820,
+        ///			"Ask" : 0.00000831,
+        ///			"OpenBuyOrders" : 15,
+        ///			"OpenSellOrders" : 15,
+        ///			"PrevDay" : 0.00000821,
+        ///			"Created" : "2014-03-20T06:00:00",
+        ///			"DisplayMarketName" : null
+        ///
+        ///        }, {
+        ///			"MarketName" : "BTC-A3C",
+        ///			"High" : 0.00000072,
+        ///			"Low" : 0.00000001,
+        ///			"Volume" : 166340678.42280999,
+        ///			"Last" : 0.00000005,
+        ///			"BaseVolume" : 17.59720424,
+        ///			"TimeStamp" : "2014-07-09T07:21:40.51",
+        ///			"Bid" : 0.00000004,
+        ///			"Ask" : 0.00000005,
+        ///			"OpenBuyOrders" : 18,
+        ///			"OpenSellOrders" : 18,
+        ///			"PrevDay" : 0.00000002,
+        ///			"Created" : "2014-05-30T07:57:49.637",
+        ///			"DisplayMarketName" : null
+        ///		}
+        ///    ]
+        ///}
+        /// </summary>
+        /// <returns></returns>
+        public dynamic GetMarketSummaries()
+        {
+            Url += "/getmarketsummaries";
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
         ///			"MarketName" : "BTC-LTC",
         ///			"High" : 0.01350000,
         ///			"Low" : 0.01200000,
@@ -96,7 +142,50 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetMarketSummary(string market)
         {
             Url += "/getmarketsummary?market=" + market;
-            return GetData(Url); 
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : {
+        ///		"buy" : [{
+        ///				"Quantity" : 12.37000000,
+        ///				"Rate" : 0.02525000
+        ///
+        ///            }
+        ///		],
+        ///		"sell" : [{
+        ///				"Quantity" : 32.55412402,
+        ///				"Rate" : 0.02540000
+        ///
+        ///            }, {
+        ///				"Quantity" : 60.00000000,
+        ///				"Rate" : 0.02550000
+        ///			}, {
+        ///				"Quantity" : 60.00000000,
+        ///				"Rate" : 0.02575000
+        ///			}, {
+        ///				"Quantity" : 84.00000000,
+        ///				"Rate" : 0.02600000
+        ///			}
+        ///		]
+        ///	}
+        ///}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <param name="type"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        public dynamic GetOrderBook(string market, string type, string depth = "")
+        {
+            Url += "/getorderbook?market={0}&type={1}";
+            if(depth != "")
+            {
+                Url += "&depth=" + depth;
+            }
+            return GetData(Url);
         }
 
         /// <summary>
@@ -149,16 +238,17 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic BuyLimit(string market, double quantity, double rate)
         {
-            Url += string.Format("/buylimit?apikey={0}&market={1}&quantity={2}&rate={3}");
+            Url += string.Format("/buylimit?apikey={0}&market={1}&quantity={2}&rate={3}", KeyLoader.BittrexKeys.Item1, market, quantity, rate);
             return GetData(Url);
         }
 
         /// <summary>
         /// used to place a limit order
         /// {
-        ///	"success" : true,
-        ///	"message" : "",
-        ///	"result" : {
+        ///	    "success" : true,
+        ///	    "message" : "",
+        ///	    "result" : 
+        ///	    {
         ///			"uuid" : "e606d53c-8d70-11e3-94b5-425861b86ab6"
         ///		}
         ///}
@@ -173,6 +263,223 @@ namespace ArbitrageBot.APIs.Bittrex
             return GetData(Url);
         }
 
+        /// <summary>
+        /// cancel an order
+        /// {
+        ///     "success" : true
+        ///     "message" : ""
+        ///     "result" : null
+        /// }    
+        /// </summary>
+        /// <param name="uuid"></param>
+        /// <returns></returns>
+        public dynamic Cancel(string uuid)
+        {
+            Url += string.Format("/cancel?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// Gets the open orders
+        /// {
+	    ///"success" : true,
+	    ///"message" : "",
+	    ///"result" : [{
+	    ///		"Uuid" : null,
+	    ///		"OrderUuid" : "09aa5bb6-8232-41aa-9b78-a5a1093e0211",
+	    ///		"Exchange" : "BTC-LTC",
+	    ///		"OrderType" : "LIMIT_SELL",
+	    ///		"Quantity" : 5.00000000,
+	    ///		"QuantityRemaining" : 5.00000000,
+	    ///		"Limit" : 2.00000000,
+	    ///		"CommissionPaid" : 0.00000000,
+	    ///		"Price" : 0.00000000,
+	    ///		"PricePerUnit" : null,
+	    ///		"Opened" : "2014-07-09T03:55:48.77",
+	    ///		"Closed" : null,
+	    ///		"CancelInitiated" : false,
+	    ///		"ImmediateOrCancel" : false,
+	    ///		"IsConditional" : false,
+	    ///		"Condition" : null,
+	    ///		"ConditionTarget" : null
+        ///
+        ///    }, {
+	    ///		"Uuid" : null,
+	    ///		"OrderUuid" : "8925d746-bc9f-4684-b1aa-e507467aaa99",
+	    ///		"Exchange" : "BTC-LTC",
+	    ///		"OrderType" : "LIMIT_BUY",
+	    ///		"Quantity" : 100000.00000000,
+	    ///		"QuantityRemaining" : 100000.00000000,
+	    ///		"Limit" : 0.00000001,
+	    ///		"CommissionPaid" : 0.00000000,
+	    ///		"Price" : 0.00000000,
+	    ///		"PricePerUnit" : null,
+	    ///		"Opened" : "2014-07-09T03:55:48.583",
+	    ///		"Closed" : null,
+	    ///		"CancelInitiated" : false,
+	    ///		"ImmediateOrCancel" : false,
+	    ///		"IsConditional" : false,
+	    ///		"Condition" : null,
+	    ///		"ConditionTarget" : null
+	    ///	}
+	    ///]
+        ///}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <returns></returns>
+        public dynamic GetOpenOrders(string market = "")
+        {
+            Url += string.Format("/getopenorders?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1);
+            if (market != null)
+            {
+                Url += "market=" + market;
+            }
+            return GetData(Url);
+        }
+        
+        /// <summary>
+        /// gets the deposit history for the given currency
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
+        ///			"PaymentUuid" : "554ec664-8842-4fe9-b491-06225becbd59",
+        ///			"Currency" : "BTC",
+        ///			"Amount" : 0.00156121,
+        ///			"Address" : "1K37yQZaGrPKNTZ5KNP792xw8f7XbXxetE",
+        ///			"Opened" : "2014-07-11T03:41:25.323",
+        ///			"Authorized" : true,
+        ///			"PendingPayment" : false,
+        ///			"TxCost" : 0.00020000,
+        ///			"TxId" : "70cf6fdccb9bd38e1a930e13e4ae6299d678ed6902da710fa3cc8d164f9be126",
+        ///			"Canceled" : false,
+        ///			"InvalidAddress" : false
+        ///
+        ///        }, {
+        ///			"PaymentUuid" : "d3fdf168-3d8e-40b6-8fe4-f46e2a7035ea",
+        ///			"Currency" : "BTC",
+        ///			"Amount" : 0.11800000,
+        ///			"Address" : "1Mrcar6715hjds34pdXuLqXcju6QgwHA31",
+        ///			"O
+        ///			pened" : "2014-07-03T20:27:07.163",
+        ///			"Authorized" : true,
+        ///			"PendingPayment" : false,
+        ///			"TxCost" : 0.00020000,
+        ///			"TxId" : "3efd41b3a051433a888eed3ecc174c1d025a5e2b486eb418eaaec5efddda22de",
+        ///			"Canceled" : false,
+        ///			"InvalidAddress" : false
+        ///		}
+        ///    ]
+        ///}
+        /// </summary>
+        /// <param name="currency"></param>
+        /// <returns></returns>
+        public dynamic GetDepositHistory(string currency = "")
+        {
+            Url += string.Format("/getdeposithistory?apikey={0}", KeyLoader.BittrexKeys.Item1);
+            if (currency != "")
+            {
+                Url += "&currency=" + currency;
+            }
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
+        ///			"PaymentUuid" : "b52c7a5c-90c6-4c6e-835c-e16df12708b1",
+        ///			"Currency" : "BTC",
+        ///			"Amount" : 17.00000000,
+        ///			"Address" : "1DeaaFBdbB5nrHj87x3NHS4onvw1GPNyAu",
+        ///			"Opened" : "2014-07-09T04:24:47.217",
+        ///			"Authorized" : true,
+        ///			"PendingPayment" : false,
+        ///			"TxCost" : 0.00020000,
+        ///			"TxId" : null,
+        ///			"Canceled" : true,
+        ///			"InvalidAddress" : false
+        ///
+        ///        }, {
+        ///			"PaymentUuid" : "f293da98-788c-4188-a8f9-8ec2c33fdfcf",
+        ///			"Currency" : "XC",
+        ///			"Amount" : 7513.75121715,
+        ///			"Address" : "XVnSMgAd7EonF2Dgc4c9K14L12RBaW5S5J",
+        ///			"Opened" : "2014-07-08T23:13:31.83",
+        ///			"Authorized" : true,
+        ///			"PendingPayment" : false,
+        ///			"TxCost" : 0.00002000,
+        ///			"TxId" : "b4a575c2a71c7e56d02ab8e26bb1ef0a2f6cf2094f6ca2116476a569c1e84f6e",
+        ///			"Canceled" : false,
+        ///			"InvalidAddress" : false
+        ///		}
+        ///	]
+        ///}
+        /// </summary>
+        /// <param name="currency"></param>
+        /// <returns></returns>
+        public dynamic GetWithdrawalHistory(string currency = "")
+        {
+            Url += string.Format("/getwithdrawalhistory?apikey={0}", KeyLoader.BittrexKeys.Item1); //add api key
+            if (currency != "")
+            {
+                Url += "&currency=" + currency; 
+            }
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
+        ///			"OrderUuid" : "fd97d393-e9b9-4dd1-9dbf-f288fc72a185",
+        ///			"Exchange" : "BTC-LTC",
+        ///			"TimeStamp" : "2014-07-09T04:01:00.667",
+        ///			"OrderType" : "LIMIT_BUY",
+        ///			"Limit" : 0.00000001,
+        ///			"Quantity" : 100000.00000000,
+        ///			"QuantityRemaining" : 100000.00000000,
+        ///			"Commission" : 0.00000000,
+        ///			"Price" : 0.00000000,
+        ///			"PricePerUnit" : null,
+        ///			"IsConditional" : false,
+        ///			"Condition" : null,
+        ///			"ConditionTarget" : null,
+        ///			"ImmediateOrCancel" : false
+        ///
+        ///        }, {
+        ///			"OrderUuid" : "17fd64d1-f4bd-4fb6-adb9-42ec68b8697d",
+        ///			"Exchange" : "BTC-ZS",
+        ///			"TimeStamp" : "2014-07-08T20:38:58.317",
+        ///			"OrderType" : "LIMIT_SELL",
+        ///			"Limit" : 0.00002950,
+        ///			"Quantity" : 667.03644955,
+        ///			"QuantityRemaining" : 0.00000000,
+        ///			"Commission" : 0.00004921,
+        ///			"Price" : 0.01968424,
+        ///			"PricePerUnit" : 0.00002950,
+        ///			"IsConditional" : false,
+        ///			"Condition" : null,
+        ///			"ConditionTarget" : null,
+        ///			"ImmediateOrCancel" : false
+        ///		}
+        ///	]
+        ///}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <returns></returns>
+        public dynamic GetOrderHistory(string market = "")
+        {
+            Url += string.Format("/getorderhistory?apikey={0}", KeyLoader.BittrexKeys.Item1);
+            if(market != null)
+            {
+                Url += "&market=" + market;
+            }
+            return GetData(Url);
+        }
+        
         /// <summary>
         /// takes the string version of a uri
         /// hashes it with byte array version of private key
