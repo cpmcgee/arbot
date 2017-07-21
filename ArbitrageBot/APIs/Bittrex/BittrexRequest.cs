@@ -72,6 +72,38 @@ namespace ArbitrageBot.APIs.Bittrex
         ///	"success" : true,
         ///	"message" : "",
         ///	"result" : [{
+        ///			"Currency" : "BTC",
+        ///			"CurrencyLong" : "Bitcoin",
+        ///			"MinConfirmation" : 2,
+        ///			"TxFee" : 0.00020000,
+        ///			"IsActive" : true,
+        ///			"CoinType" : "BITCOIN",
+        ///			"BaseAddress" : null
+        ///
+        ///        }, {
+        ///			"Currency" : "LTC",
+        ///			"CurrencyLong" : "Litecoin",
+        ///			"MinConfirmation" : 5,
+        ///			"TxFee" : 0.00200000,
+        ///			"IsActive" : true,
+        ///			"CoinType" : "BITCOIN",
+        ///			"BaseAddress" : null
+        ///		}
+        ///    ]
+        ///}
+        /// </summary>
+        /// <returns></returns>
+        public dynamic GetCurrencies()
+        {
+            Url += "/getcurrencies";
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
         ///			"MarketName" : "BTC-888",
         ///			"High" : 0.00000919,
         ///			"Low" : 0.00000820,
@@ -377,10 +409,10 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetOpenOrders(string market = "")
         {
-            Url += string.Format("/getopenorders?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1);
+            Url += string.Format("/getopenorders?apikey={0}", KeyLoader.BittrexKeys.Item1);
             if (market != null)
             {
-                Url += "market=" + market;
+                Url += "&market=" + market;
             }
             return GetData(Url);
         }
@@ -557,7 +589,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetBalances()
         {
-            Url += string.Format("/getbalances?apikey={0}" , KeyLoader.BittrexKeys);
+            Url += string.Format("/getbalances?apikey={0}" , KeyLoader.BittrexKeys.Item1);
             return GetData(Url);
         }
 
