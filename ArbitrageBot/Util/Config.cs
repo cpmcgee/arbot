@@ -20,14 +20,12 @@ namespace ArbitrageBot.Util
         {
             Regex pattern = new Regex("([A-Za-z0-9])+=([A-Za-z0-9])+");
             properties = File.ReadAllLines(file)
-                        .SelectMany(txt => txt.Split('\n'))
                         .Select(ln => ln.Replace(" ", ""))
                         .Where(ln => pattern.IsMatch(ln))
                         .Select(ln => new KeyValuePair<string, string>(
                                                 ln.Split('=')[0],
                                                 ln.Split('=')[1]))
                         .ToDictionary(x => x.Key, x => x.Value);
-  
         }
 
         public static string Get(string key)
