@@ -22,24 +22,43 @@ namespace ArbitrageBot
         private const string BITTREX_FILE = "bittrex.txt";
         private const string BITFINEX_FILE = "bitfinex.txt";
         private const string POLONIEX_FILE = "poloniex.txt";
+        
+        private static Tuple<string, string> bittrexKeys;
+        private static Tuple<string, string> bitfinexKeys;
+        private static Tuple<string, string> poloniexKeys;
 
         /// <summary>
-        /// takes an api object and sets its key attributes
+        /// gives the public and secret key as item1 and item2 in a tuple
         /// </summary>
         /// <param name="exchange"></param>
-        public static Tuple<string, string> GetBittrexKeys()
+        public static Tuple<string, string> BittrexKeys
         {
-            return ReadFile(BITTREX_FILE);
+            get
+            {
+                if (bittrexKeys == null)
+                    ReadFile(BITTREX_FILE);
+                return bittrexKeys;
+            }
         }
 
-        public static Tuple<string, string> GetBitfinexKeys()
+        public static Tuple<string, string> BitfinexKeys
         {
-            return ReadFile(BITFINEX_FILE);
+            get
+            {
+                if (bitfinexKeys == null)
+                    ReadFile(BITFINEX_FILE);
+                return bitfinexKeys;
+            }
         }
 
-        public static Tuple<string, string> GetPoloniexKeys()
+        public static Tuple<string, string> PoloniexKeys
         {
-            return ReadFile(POLONIEX_FILE);
+            get
+            {
+                if (poloniexKeys == null)
+                    ReadFile(POLONIEX_FILE);
+                return poloniexKeys;
+            }
         }
 
         /// <summary>

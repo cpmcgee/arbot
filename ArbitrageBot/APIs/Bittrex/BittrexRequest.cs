@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
@@ -12,14 +13,36 @@ namespace ArbitrageBot.APIs.Bittrex
 {
     public class BittrexRequest : Request
     {
+        private bool authenticated = false;
+
         public BittrexRequest()
         {
             Url = "https://bittrex.com/api/v1.1";
         }
 
+        /// <summary>
+        /// below three methods allow for method chaining in order to make syntax similar to the url being access
+        /// i.e. https://bittrex.com/api/v1.1/market/buylimit?market=.....
+        ///      when called from Bittrex.cs - new Bittrex().Market().BuyLimit(market);
+        /// </summary>
+        /// <returns></returns>
         public BittrexRequest Public()
         {
             Url += "/public";
+            return this;
+        }
+
+        public BittrexRequest Market()
+        {
+            Url += "/market";
+            authenticated = true;
+            return this;
+        }
+
+        public BittrexRequest Account()
+        {
+            Url += "/account";
+            authenticated = true;
             return this;
         }
 
@@ -110,17 +133,92 @@ namespace ArbitrageBot.APIs.Bittrex
             return GetData(Url);
         }
 
-        protected override dynamic GetData(string Url)
+        /// <summary>
+        /// used to place a limit order
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : {
+        ///			"uuid" : "e606d53c-8d70-11e3-94b5-425861b86ab6"
+        ///		}
+        ///}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <param name="quantity"></param>
+        /// <param name="rate"></param>
+        /// <returns></returns>
+        public dynamic BuyLimit(string market, double quantity, double rate)
         {
+            Url += string.Format("/buylimit?apikey={0}&market={1}&quantity={2}&rate={3}");
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// used to place a limit order
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : {
+        ///			"uuid" : "e606d53c-8d70-11e3-94b5-425861b86ab6"
+        ///		}
+        ///}
+        /// </summary>
+        /// <param name="market"></param>
+        /// <param name="quantity"></param>
+        /// <param name="rate"></param>
+        /// <returns></returns>
+        public dynamic SellLimit(string market, double quantity, double rate)
+        {
+            Url += string.Format("/selllimit?apikey={0}&market={1}&quantity={2}&rate={3}");
+            return GetData(Url);
+        }
+
+        /// <summary>
+        /// takes the string version of a uri
+        /// hashes it with byte array version of private key
+        /// converts it to hex string
+        /// as in version on bitfinex documentation
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected override string GenerateSignature(string uri)
+        {
+            byte[] uriBytes = Encoding.ASCII.GetBytes(uri);
+            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.BittrexKeys.Item2);
+            HMACSHA512 hasher = new HMACSHA512(keyBytes);
+            return hasher.ComputeHash(uriBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
+        }
+
+        /// <summary>
+        /// checks if calling an authenticated endpoint
+        /// creates an appropriate http request
+        /// sends back the dynamic json object
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        protected override dynamic GetData(string url)
+        {
+            var request = ((HttpWebRequest)WebRequest.Create(url));
+            if (authenticated)
+            {
+                request.Headers.Add("apisign", GenerateSignature(url));
+            }
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
+                WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
-                return JsonConvert.DeserializeObject(raw);
+                dynamic data = JsonConvert.DeserializeObject(raw);
+                if (data.success == true)
+                {
+                    return data;
+                }
+                Logger.ERROR("Unsuccessful bittrex api call: " + url);
+                return null;
             }
             catch(Exception ex)
             {
-                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                Logger.ERROR("Failed to access " + url + "\n" + ex.Message);
                 return null;
             }
         }

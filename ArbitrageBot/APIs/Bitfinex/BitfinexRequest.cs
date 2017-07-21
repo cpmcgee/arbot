@@ -100,7 +100,22 @@ namespace ArbitrageBot.APIs.Bitfinex
             return GetData(Url);
         }
 
-
+        /// <summary>
+        /// Creates an authenticated post request with a new order for the account with the given keys
+        /// </summary>
+        /// <param name="Symbol"></param>
+        /// <param name="Amount"></param>
+        /// <param name="Price"></param>
+        /// <param name="Side"></param>
+        /// <param name="Type"></param>
+        /// <param name="Exchange"></param>
+        /// <param name="Is_Hidden"></param>
+        /// <param name="Is_Postonly"></param>
+        /// <param name="Use_All_Available"></param>
+        /// <param name="Oco_Order"></param>
+        /// <param name="Buy_Price_Oco"></param>
+        /// <param name="Sell_Price_Oco"></param>
+        /// <returns></returns>
         public string PostNewOrder(string Symbol, float Amount, float Price, string Side, string Type, string Exchange, bool Is_Hidden, bool Is_Postonly, int Use_All_Available, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco)
         {
             Url += "/order/new";
@@ -108,7 +123,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             var obj = new
             {
                 request = Url,
-                nonce = DateTime.Now.Millisecond,
+                nonce = Nonce,
                 symbol = Symbol,
                 amount = Amount,
                 price = Price,
@@ -124,6 +139,38 @@ namespace ArbitrageBot.APIs.Bitfinex
             };
       
             return JsonConvert.SerializeObject(obj);
+        }
+
+        /// <summary>
+        /// takes a string, converts it to byte array, then to base64 string as in order shown in example on bitfinex documentation
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected string EncodeBase64(string payload)
+        {
+            byte[] jsonBytes = Encoding.ASCII.GetBytes(payload);
+            return Convert.ToBase64String(jsonBytes);
+        }
+
+        /// <summary>
+        /// takes the string version of a json payload,
+        /// converts it to string base64
+        /// converts it to byte array
+        /// hashes it with byte array version of private key
+        /// converts it to hex string
+        /// as in version on bitfinex documentation
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected string GenerateSignature(string payload)
+        {
+            
+            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.BitfinexKeys.Item2);
+            HMACSHA384 hasher = new HMACSHA384(keyBytes);
+            string payload_base64 = EncodeBase64(payload);
+            byte[] payloadBytes = Encoding.ASCII.GetBytes(payload_base64);
+            return hasher.ComputeHash(payloadBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
         }
 
         /// <summary>
@@ -152,7 +199,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="Url"></param>
         /// <param name="payload"></param>
         /// <returns></returns>
-        protected dynamic GetData(string Url, string payload)
+        protected dynamic PostData(string Url, string payload)
         {
             try
             {
@@ -161,7 +208,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                 request.ContentType = "application/json";
                 request.Headers.Add("Content-Type:application/json");
                 request.Headers.Add("Accept:application/json");
-                request.Headers.Add("X-BFX-APIKEY:" + KeyLoader.GetBitfinexKeys().Item2);
+                request.Headers.Add("X-BFX-APIKEY:" + KeyLoader.BitfinexKeys.Item1);
                 request.Headers.Add("X-BFX-PAYLOAD:" + EncodeBase64(payload));
                 request.Headers.Add("X-BFX-SIGNATURE:" + GenerateSignature(payload));
                 WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
@@ -173,23 +220,6 @@ namespace ArbitrageBot.APIs.Bitfinex
                 Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
-        }
-
-        protected string EncodeBase64(string payload)
-        {
-            byte[] jsonBytes = Encoding.ASCII.GetBytes(payload);
-            return Convert.ToBase64String(jsonBytes);
-        }
-
-        protected string GenerateSignature(string payload)
-        {
-            
-            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.GetBitfinexKeys().Item2);
-            HMACSHA384 hasher = new HMACSHA384(keyBytes);
-            string payload_base64 = EncodeBase64(payload);
-            byte[] payloadBytes = Encoding.ASCII.GetBytes(payload_base64);
-            return hasher.ComputeHash(payloadBytes)
-                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //some how this Aggregator turns it back into bytes ¯\_(ツ)_/¯
         }
     }
 }
