@@ -14,7 +14,7 @@ Request.cs abstract class - Provides abstract methods for handling the REST call
   - Methods in these classes return dynamic JSON objects that will be parsed by their calling methods
  
 IStrategy.cs interface - Provides a simple interface to implement when creating strategies, has one method, Run(), where the logic from the strategy is implemented.
-  - Strategies are run from the Main() method in Program.cs (e.g. TestStrategy.Run())
+  - Strategies are run from the Main() method in Program.cs (e.g. new TestStrategy.Run())
   - Strategies can be run in any order, compounded, or run in parallel from the main method
   - Strategies make use of methods in classes conforming to API.cs
   
