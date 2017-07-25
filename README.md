@@ -4,7 +4,7 @@ This is a framework built in C# that provides abracted API access to several maj
 Project Design:
 
 API.cs abstract class - Provides abstract methods such as GetPriceInBtc(string symbol) for getting information from different APIs. Some classes conforming to this are Bittrex.cs and Poloniex.cs
-  - Classes conforming to this class ensures implementations of different web API's all have the same methods and .               functionality
+  - Classes conforming to this class ensures implementations of different web API's all have the same methods and .               functionality
   - This make arbitrage strategies and other strategies using multiple API's much easier from Strategy classes 
   - Implementations of these methods make use of Request.cs methods (shown below) and parse the dynamic JSON data returned
 
