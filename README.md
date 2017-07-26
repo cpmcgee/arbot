@@ -1,5 +1,5 @@
 # arbot 
-This is a framework built in C# that provides abracted API access to several major cryptocurrency API's (currently working on Bittrex, Bitfinex, and Poloniex but more to come). The goal for this framework is to provide a convenient backbone for creating and implementing trading strategies that utilize multiple exchanges. This is a personal side project for fun, so limited time and effort is being put in. If you would like to contribute or make suggestions, submit a pull request or email me at cpmcgee95@gmail.com
+This is a framework built in C# that provides abstracted API access to several major cryptocurrency API's (currently working on Bittrex, Bitfinex, and Poloniex but more to come). The goal for this framework is to provide a convenient backbone for creating and implementing trading strategies that utilize multiple exchanges. This is a personal side project for fun, so limited time and effort is being put in. If you would like to contribute or make suggestions, submit a pull request or email me at cpmcgee95@gmail.com
 
 Project Design:
 
