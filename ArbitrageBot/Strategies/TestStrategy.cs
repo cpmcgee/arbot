@@ -19,23 +19,25 @@ namespace ArbitrageBot.Strategies
             Bittrex bittrex = new Bittrex();
             Bitfinex bitfinex = new Bitfinex();
             Poloniex poloniex = new Poloniex();
-            decimal diffSum = 0;
-            Logger.INFO("Price Differences: ");
-            foreach (var s in coins)
-            {
-                try
-                {
-                    decimal diff = poloniex.GetPriceInBtc(s) - bittrex.GetPriceInBtc(s);
-                    diffSum += Math.Abs(diff);
-                    Logger.INFO(s + "--" + (diff > 0 ? "Bittrex" : "Poloniex") + " lower by: " + diff);
-                }
-                catch (ArgumentException ex)
-                {
-                    Logger.ERROR(ex.Message);
-                }
-                //Console.ReadLine();
-            }
-            Logger.INFO("Total arbitrage opportunity: " + diffSum);
+            decimal diffsum = 0;
+            dynamic data = new BittrexRequest().Account().GetOrderHistory();
+            bool b = data.success;
+            //Logger.INFO("Price Differences: ");
+            //foreach (var s in coins)
+            //{
+            //    try
+            //    {
+            //        decimal diff = poloniex.GetPriceInBtc(s) - bittrex.GetPriceInBtc(s);
+            //        diffSum += Math.Abs(diff);
+            //        Logger.INFO(s + "--" + (diff > 0 ? "Bittrex" : "Poloniex") + " lower by: " + diff);
+            //    }
+            //    catch (ArgumentException ex)
+            //    {
+            //        Logger.ERROR(ex.Message);
+            //    }
+            //    //Console.ReadLine();
+            //}
+            //Logger.INFO("Total arbitrage opportunity: " + diffSum);
             Console.ReadLine();
         }
 

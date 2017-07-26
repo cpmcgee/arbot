@@ -36,7 +36,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         public dynamic GetTicker(string market)
         {
             Url += "/pubticker/" + market;
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         public dynamic GetSymbols()
         {
             Url += "/symbools";
-            return GetData(Url);
+            return GetData();
         }
         
         /// <summary>
@@ -97,7 +97,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         public dynamic GetSymbolDetails()
         {
             Url += "/symbols_details";
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="Url"></param>
         /// <returns></returns>
-        protected override dynamic GetData(string Url)
+        protected override dynamic GetData()
         {
             try
             {

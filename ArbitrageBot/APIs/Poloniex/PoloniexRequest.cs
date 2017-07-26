@@ -37,7 +37,7 @@ namespace ArbitrageBot.APIs.Poloniex
         public dynamic ReturnTicker()
         {
             Url += "?command=returnTicker";
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -50,10 +50,10 @@ namespace ArbitrageBot.APIs.Poloniex
         public dynamic ReturnCurrencies()
         {
             Url += "?command=returnCurrencies";
-            return GetData(Url);
+            return GetData();
         }
 
-        protected override dynamic GetData(string Url)
+        protected override dynamic GetData()
         {
             try
             {
@@ -66,6 +66,11 @@ namespace ArbitrageBot.APIs.Poloniex
                 Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
+        }
+
+        protected override string GenerateSignature(string data)
+        {
+            throw new NotImplementedException();
         }
     }
 }

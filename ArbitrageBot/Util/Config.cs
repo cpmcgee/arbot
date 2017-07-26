@@ -45,7 +45,7 @@ namespace ArbitrageBot.Util
 
         public static string GetLogFilePath()
         {
-            return properties["logFile"];
+            return properties["logfile"];
         }
     }
 }

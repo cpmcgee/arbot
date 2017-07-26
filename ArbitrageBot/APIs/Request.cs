@@ -16,20 +16,21 @@ namespace ArbitrageBot.APIs
         /// <summary>
         /// gets the current time in millis to include with authenticated api calls
         /// </summary>
-        protected static string Nonce { get { return DateTime.Now.Millisecond.ToString(); } }
+        //protected static string Nonce { get { return DateTime.Now.Millisecond.ToString(); } }
+        protected static string Nonce { get { return Guid.NewGuid().ToString("N"); } }
 
         /// <summary>
         /// handles the http portion of the API call
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        protected abstract dynamic GetData(string url);
+        protected abstract dynamic GetData();
 
         /// <summary>
         /// hashes some data to create a signature for an authenticated endpoint
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        protected abstract string GenerateSignature(string data)
+        protected abstract string GenerateSignature(string data);
     }
 }

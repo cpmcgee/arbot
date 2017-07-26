@@ -36,7 +36,7 @@ namespace ArbitrageBot
             get
             {
                 if (bittrexKeys == null)
-                    ReadFile(BITTREX_FILE);
+                    bittrexKeys = ReadFile(BITTREX_FILE);
                 return bittrexKeys;
             }
         }
@@ -46,7 +46,7 @@ namespace ArbitrageBot
             get
             {
                 if (bitfinexKeys == null)
-                    ReadFile(BITFINEX_FILE);
+                    bitfinexKeys = ReadFile(BITFINEX_FILE);
                 return bitfinexKeys;
             }
         }
@@ -56,7 +56,7 @@ namespace ArbitrageBot
             get
             {
                 if (poloniexKeys == null)
-                    ReadFile(POLONIEX_FILE);
+                    poloniexKeys = ReadFile(POLONIEX_FILE);
                 return poloniexKeys;
             }
         }
@@ -83,7 +83,7 @@ namespace ArbitrageBot
             catch (IOException ex)
             {
                 Console.WriteLine("Problem getting key from " + path);
-                return new Tuple<string, string>("", "");
+                return null;
             }
         }
     }

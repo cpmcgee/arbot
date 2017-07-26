@@ -64,7 +64,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetTicker(string market)
         {
             Url += "/getticker?market=" + market;
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetCurrencies()
         {
             Url += "/getcurrencies";
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetMarketSummaries()
         {
             Url += "/getmarketsummaries";
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetMarketSummary(string market)
         {
             Url += "/getmarketsummary?market=" + market;
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetMarketHistory(string market)
         {
             Url += "/getmarkethistory?market=" + market;
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 Url += "&depth=" + depth;
             }
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetMarkets()
         {
             Url += "/getmarkets";
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic BuyLimit(string market, double quantity, double rate)
         {
             Url += string.Format("/buylimit?apikey={0}&market={1}&quantity={2}&rate={3}", KeyLoader.BittrexKeys.Item1, market, quantity, rate);
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic SellLimit(string market, double quantity, double rate)
         {
             Url += string.Format("/selllimit?apikey={0}&market={1}&quantity={2}&rate={3}");
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic Cancel(string uuid)
         {
             Url += string.Format("/cancel?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -414,7 +414,7 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 Url += "&market=" + market;
             }
-            return GetData(Url);
+            return GetData();
         }
         
         /// <summary>
@@ -461,7 +461,7 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 Url += "&currency=" + currency;
             }
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -506,7 +506,7 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 Url += "&currency=" + currency; 
             }
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -553,11 +553,11 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetOrderHistory(string market = "")
         {
             Url += string.Format("/getorderhistory?apikey={0}", KeyLoader.BittrexKeys.Item1);
-            if(market != null)
+            if(market != "")
             {
                 Url += "&market=" + market;
             }
-            return GetData(Url);
+            return GetData();
         }
         
         /// <summary>
@@ -590,7 +590,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetBalances()
         {
             Url += string.Format("/getbalances?apikey={0}" , KeyLoader.BittrexKeys.Item1);
-            return GetData(Url);
+            return GetData();
         }
 
         /// <summary>
@@ -615,7 +615,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetBalance(string currency)
             {
                 Url += string.Format("/getbalance?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
-                return GetData(Url);
+                return GetData();
         }
 
         /// <summary>
@@ -634,7 +634,7 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetDepositAddress(string currency)
             {
                 Url += string.Format("/getdepositaddress?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
-                return GetData(Url);
+                return GetData();
             }
 
         /// <summary>
@@ -659,13 +659,13 @@ namespace ArbitrageBot.APIs.Bittrex
                 {
                     Url += "&paymentid=" + paymentid;
                 }
-                return GetData(Url);
+                return GetData();
             }
 
             public dynamic GetOrder(string uuid)
             {
                 Url += string.Format("/getorder?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
-                return GetData(Url);
+                return GetData();
             }
 
         /// <summary>
@@ -678,8 +678,8 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         protected override string GenerateSignature(string uri)
         {
-            byte[] uriBytes = Encoding.ASCII.GetBytes(uri);
-            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.BittrexKeys.Item2);
+            byte[] uriBytes = Encoding.UTF8.GetBytes(uri);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(KeyLoader.BittrexKeys.Item2);
             HMACSHA512 hasher = new HMACSHA512(keyBytes);
             return hasher.ComputeHash(uriBytes)
                 .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
@@ -692,12 +692,16 @@ namespace ArbitrageBot.APIs.Bittrex
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
-        protected override dynamic GetData(string url)
+        protected override dynamic GetData()
         {
-            var request = ((HttpWebRequest)WebRequest.Create(url));
             if (authenticated)
             {
-                request.Headers.Add("apisign", GenerateSignature(url));
+                Url += "&nonce=" + Nonce;
+            }
+            var request = ((HttpWebRequest)WebRequest.Create(Url));
+            if (authenticated)
+            {
+                request.Headers.Add("apisign", GenerateSignature(Url));
             }
             try
             {
@@ -708,12 +712,12 @@ namespace ArbitrageBot.APIs.Bittrex
                 {
                     return data;
                 }
-                Logger.ERROR("Unsuccessful bittrex api call: " + url);
+                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message);
                 return null;
             }
             catch(Exception ex)
             {
-                Logger.ERROR("Failed to access " + url + "\n" + ex.Message);
+                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
         }
