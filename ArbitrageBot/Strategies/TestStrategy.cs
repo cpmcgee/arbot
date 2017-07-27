@@ -20,8 +20,9 @@ namespace ArbitrageBot.Strategies
             Bitfinex bitfinex = new Bitfinex();
             Poloniex poloniex = new Poloniex();
             decimal diffsum = 0;
+
             dynamic data = new BittrexRequest().Account().GetOrderHistory();
-            bool b = data.success;
+            dynamic data2 = new BitfinexRequest().WalletBallances();
             //Logger.INFO("Price Differences: ");
             //foreach (var s in coins)
             //{

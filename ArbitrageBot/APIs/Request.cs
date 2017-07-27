@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ArbitrageBot.APIs
 {
@@ -15,10 +16,19 @@ namespace ArbitrageBot.APIs
 
         /// <summary>
         /// gets the current time in millis to include with authenticated api calls
+        /// this nonce generator is tested to work with bittrex and bitfinex 7/26/2017
         /// </summary>
-        //protected static string Nonce { get { return DateTime.Now.Millisecond.ToString(); } }
-        protected static string Nonce { get { return Guid.NewGuid().ToString("N"); } }
-
+        protected static string Nonce
+        {
+            get
+            {
+                DateTime min = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                TimeSpan span = DateTime.UtcNow - min;
+                return long.MaxValue.ToString() + span.TotalMilliseconds.ToString();
+            }
+        }
+        //protected static string Nonce { get { return Guid.NewGuid().ToString(); } }
+      
         /// <summary>
         /// handles the http portion of the API call
         /// </summary>
