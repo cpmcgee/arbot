@@ -14,7 +14,7 @@ namespace ArbitrageBot.APIs.Bitfinex
 {
     public class BitfinexRequest : Request
     {
-        string req = "/v1"; //will be built upon to match tail end of Url, needed as post parameter
+        string req = "/v1"; //will be built upon to match tail end of Url as needed for POST requests
          
         public BitfinexRequest()
         {
@@ -364,6 +364,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         //Implement "Replace Order"
 
 
+
         /// <summary>
         /// {
         ///  "id":448411153,
@@ -524,18 +525,8 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
             catch (WebException wex)
             {
-                if (wex.Response != null)
-                {
-                    using (var errorResponse = (HttpWebResponse)wex.Response)
-                    {
-                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
-                        {
-                            Logger.ERROR("Failed to access " + Url + "\n" + reader.ReadToEnd());
-                            return null;
-                            //TODO: use JSON.net to parse this string and look at the error message
-                        }
-                    }
-                }
+                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
                 return null;
             }
             catch (Exception ex)
