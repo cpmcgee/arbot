@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
@@ -22,6 +23,12 @@ namespace ArbitrageBot.APIs.Poloniex
         public PoloniexRequest Public()
         {
             Url += "/public";
+            return this;
+        }
+
+        public PoloniexRequest Trading()
+        {
+            Url += "/tradingApi";
             return this;
         }
 
@@ -53,6 +60,60 @@ namespace ArbitrageBot.APIs.Poloniex
             return GetData();
         }
 
+        
+        public dynamic ReturnBalances()
+        {
+            //Url += "?command=returnBalances";
+            return PostData(new
+            {
+                command = "returnBalances",
+                nonce = Nonce
+            });
+        }
+
+        protected override string GenerateSignature(string data)
+        {
+            byte[] uriBytes = Encoding.UTF8.GetBytes(data);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(KeyLoader.PoloniexKeys.Item2);
+            HMACSHA512 hasher = new HMACSHA512(keyBytes);
+            return hasher.ComputeHash(uriBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
+        }
+
+        /// <summary>
+        /// makes an api call with a post and returns the payload
+        /// </summary>
+        /// <param name="Url"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected dynamic PostData(object payload)
+        {
+            try
+            {
+                var request = ((HttpWebRequest)WebRequest.Create(Url));
+                payload = JsonConvert.SerializeObject(payload) as string;
+                request.Method = "POST";
+                //request.Accept = "application/json";
+                //request.ContentType = "application/json";
+                request.Headers.Add("Key", KeyLoader.PoloniexKeys.Item1);
+                request.Headers.Add("Sign", GenerateSignature((string)payload));
+                WebResponse response = request.GetResponse();
+                string raw = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return JsonConvert.DeserializeObject(raw);
+            }
+            catch (WebException wex)
+            {
+                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Error creating request for " + Url + "\n" + ex.Message);
+                return null;
+            }
+        }
+
         protected override dynamic GetData()
         {
             try
@@ -68,9 +129,6 @@ namespace ArbitrageBot.APIs.Poloniex
             }
         }
 
-        protected override string GenerateSignature(string data)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

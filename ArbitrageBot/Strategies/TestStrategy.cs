@@ -21,8 +21,16 @@ namespace ArbitrageBot.Strategies
             Poloniex poloniex = new Poloniex();
             decimal diffsum = 0;
 
-            dynamic data = new BittrexRequest().Account().GetOrderHistory();
-            dynamic data2 = new BitfinexRequest().WalletBallances();
+            dynamic data = new BittrexRequest().Account().GetBalances();
+            dynamic data2 = new BitfinexRequest().WalletBalances();
+            dynamic data3 = new PoloniexRequest().Trading().ReturnBalances();
+
+            if (data == null)
+                throw new Exception("Null bittrex");
+            else if (data2 == null)
+                throw new Exception("Null bitfinex");
+            else if (data2 == null)
+                throw new Exception("Null poloniex");
             //Logger.INFO("Price Differences: ");
             //foreach (var s in coins)
             //{

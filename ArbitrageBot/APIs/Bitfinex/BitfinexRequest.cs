@@ -477,7 +477,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             string payload_base64 = EncodeBase64(payload);
             byte[] payloadBytes = Encoding.ASCII.GetBytes(payload_base64);
             return hasher.ComputeHash(payloadBytes)
-                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
         }
 
         /// <summary>
@@ -518,7 +518,6 @@ namespace ArbitrageBot.APIs.Bitfinex
                 request.Headers.Add("X-BFX-APIKEY", KeyLoader.BitfinexKeys.Item1);
                 request.Headers.Add("X-BFX-PAYLOAD", EncodeBase64((string)payload));
                 request.Headers.Add("X-BFX-SIGNATURE", GenerateSignature((string)payload));
-                new StreamWriter(request.GetRequestStream()).Write(payload);
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);

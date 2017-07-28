@@ -682,7 +682,7 @@ namespace ArbitrageBot.APIs.Bittrex
             byte[] keyBytes = Encoding.UTF8.GetBytes(KeyLoader.BittrexKeys.Item2);
             HMACSHA512 hasher = new HMACSHA512(keyBytes);
             return hasher.ComputeHash(uriBytes)
-                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); //turns it back into bytes ¯\_(ツ)_/¯
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
         }
 
         /// <summary>
