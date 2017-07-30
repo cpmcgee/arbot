@@ -518,6 +518,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                 request.Headers.Add("X-BFX-APIKEY", KeyLoader.BitfinexKeys.Item1);
                 request.Headers.Add("X-BFX-PAYLOAD", EncodeBase64((string)payload));
                 request.Headers.Add("X-BFX-SIGNATURE", GenerateSignature((string)payload));
+                new StreamWriter(request.GetRequestStream()).Write(payload);
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);

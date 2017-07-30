@@ -29,8 +29,12 @@ namespace ArbitrageBot.Strategies
                 throw new Exception("Null bittrex");
             else if (data2 == null)
                 throw new Exception("Null bitfinex");
-            else if (data2 == null)
+            else if (data3 == null)
                 throw new Exception("Null poloniex");
+
+            Console.WriteLine(data);
+            Console.WriteLine(data2);
+            Console.WriteLine(data3);
             //Logger.INFO("Price Differences: ");
             //foreach (var s in coins)
             //{
