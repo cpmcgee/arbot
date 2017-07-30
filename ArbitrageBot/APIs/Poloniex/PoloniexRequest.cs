@@ -16,6 +16,8 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class PoloniexRequest : Request
     {
+        private string payload
+
         new string Nonce
         {
             get
@@ -81,12 +83,161 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <returns></returns>
         public dynamic ReturnBalances()
         {
-            return PostData(new Dictionary<string, object>
-            {
-                { "command", "returnBalances" },
-                { "nonce", Nonce }
-            });
+            string payload = "command=returnBalances";
+            payload += "&nonce=" + Nonce;
+            return PostData(payload);
         }
+
+        /// <summary>
+        /// {"LTC":{"available":"5.015","onOrders":"1.0025","btcValue":"0.078"},"NXT:{...} ... }
+        /// </summary>
+        /// <returns>k</returns>
+        public dynamic ReturnCompleteBalances()
+        {
+            string payload = "command=returnCompleteBalances";
+            payload += "&nonce=" + Nonce;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// {"BTC":"19YqztHmspv2egyD6jQM3yn81x5t5krVdJ","LTC":"LPgf9kjv9H1Vuh4XSaKhzBe8JHdou1WgUB", ... "ITC":"Press Generate.." ... }
+        /// </summary>
+        /// <returns></returns>
+        public dynamic ReturnDepositAddresses()
+        {
+            string payload = "command=returnDepositAddresses";
+            payload += "&nonce=" + Nonce;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// {"deposits":
+        ///[{"currency":"BTC","address":"...","amount":"0.01006132","confirmations":10,
+        ///"txid":"17f819a91369a9ff6c4a34216d434597cfc1b4a3d0489b46bd6f924137a47701","timestamp":1399305798,"status":"COMPLETE"},{"currency":"BTC","address":"...","amount":"0.00404104","confirmations":10, 
+        ///"txid":"7acb90965b252e55a894b535ef0b0b65f45821f2899e4a379d3e43799604695c","timestamp":1399245916,"status":"COMPLETE"}],
+        ///"withdrawals":[{"withdrawalNumber":134933,"currency":"BTC","address":"1N2i5n8DwTGzUq2Vmn9TUL8J1vdr1XBDFg","amount":"5.00010000",
+        ///"timestamp":1399267904,"status":"COMPLETE: 36e483efa6aff9fd53a235177579d98451c4eb237c210e66cd2b9a2d4a988f8e","ipAddress":"..."}]}
+        /// </summary>
+        /// <returns></returns>
+        public dynamic ReturnDepositsWithdrawals(DateTime timeStart, DateTime timeEnd)
+        {
+            string start = UnixTimeStamp(timeStart); //unix timestamp conversion
+            string end = UnixTimeStamp(timeEnd);
+            string payload = "command=returnDepositAddresses";
+            payload += "&nonce=" + Nonce;
+            payload += "&start=" + start;
+            payload += "&end=" + end;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// {"success":1,"response":"CKXbbs8FAVbtEa397gJHSutmrdrBrhUMxe"}
+        /// </summary>
+        /// <returns></returns>
+        public dynamic GenerateNewAddress()
+        {
+            string payload = "command=generateNewAddress";
+            payload += "&nonce=" + Nonce;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// currencyPair as "BTC_XCP" 
+        /// [{"orderNumber":"120466","type":"sell","rate":"0.025","amount":"100","total":"2.5"},{"orderNumber":"120467","type":"sell","rate":"0.04","amount":"100","total":"4"}, ... ]
+        /// 
+        /// currencyPair "all"
+        /// {"BTC_1CR":[],"BTC_AC":[{"orderNumber":"120466","type":"sell","rate":"0.025","amount":"100","total":"2.5"},{"orderNumber":"120467","type":"sell","rate":"0.04","amount":"100","total":"4"}], ... }
+        /// </summary>
+        /// <param name="currencyPair"></param>
+        /// <returns></returns>
+        public dynamic ReturnOpenOrders(string currencyPair)
+        {
+            string payload = "command=returnOpenOrders";
+            payload += "&nonce=" + Nonce;
+            payload += "&currencyPair=" + currencyPair;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// [{ "globalTradeID": 25129732, "tradeID": "6325758", "date": "2016-04-05 08:08:40", "rate": "0.02565498", "amount": "0.10000000", "total": "0.00256549", "fee": "0.00200000", "orderNumber": "34225313575", "type": "sell", "category": "exchange" }, { "globalTradeID": 25129628, "tradeID": "6325741", "date": "2016-04-05 08:07:55", "rate": "0.02565499", "amount": "0.10000000", "total": "0.00256549", "fee": "0.00200000", "orderNumber": "34225195693", "type": "buy", "category": "exchange" }, ... ]
+        /// 
+        /// currencyPair "all" --
+        /// {"BTC_MAID": [ { "globalTradeID": 29251512, "tradeID": "1385888", "date": "2016-05-03 01:29:55", "rate": "0.00014243", "amount": "353.74692925", "total": "0.05038417", "fee": "0.00200000", "orderNumber": "12603322113", "type": "buy", "category": "settlement" }, { "globalTradeID": 29251511, "tradeID": "1385887", "date": "2016-05-03 01:29:55", "rate": "0.00014111", "amount": "311.24262497", "total": "0.04391944", "fee": "0.00200000", "orderNumber": "12603319116", "type": "sell", "category": "marginTrade" }, ... ],"BTC_LTC":[ ... ] ... }
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="currencyPair"></param>
+        /// <returns></returns>
+        public dynamic ReturnTradeHistory(DateTime start, DateTime end, string currencyPair)
+        {
+            string payload = "command=returnTradeHistory";
+            payload += "&nonce=" + Nonce;
+            payload += "&currencyPair=" + currencyPair;
+            payload += "&start=" + UnixTimeStamp(start);
+            payload += "&end=" + UnixTimeStamp(end);
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// [{"globalTradeID": 20825863, "tradeID": 147142, "currencyPair": "BTC_XVC", "type": "buy", "rate": "0.00018500", "amount": "455.34206390", "total": "0.08423828", "fee": "0.00200000", "date": "2016-03-14 01:04:36"}, ...]
+        /// </summary>
+        /// <param name="orderNumber"></param>
+        /// <returns></returns>
+        public dynamic ReturnOrderTrades(int orderNumber)
+        {
+            string payload = "command=returnOrderTrades";
+            payload += "&nonce=" + Nonce;
+            payload += "&orderNumber=" + orderNumber;
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// {"orderNumber":31226040,"resultingTrades":[{"amount":"338.8732","date":"2014-10-18 23:03:21","rate":"0.00000173","total":"0.00058625","tradeID":"16164","type":"buy"}]}
+        /// </summary>
+        /// <param name="currencyPair"></param>
+        /// <param name="rate"></param>
+        /// <param name="amount"></param>
+        /// <param name="fillOrKill"></param>
+        /// <param name="immediateOrCancel"></param>
+        /// <param name="postOnly"></param>
+        /// <returns></returns>
+        public dynamic Buy(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        {
+            string payload = "command=buy";
+            payload += "&currencyPair=" + currencyPair;
+            payload += "&rate=" + rate.ToString();
+            payload += "&amount=" + amount.ToString();
+            payload += fillOrKill ? "&fillOrKill=1" : "";
+            payload += immediateOrCancel ? "&immediateOrCancel=1" : "";
+            payload += postOnly ? "&postOnly=1" : "";
+            return PostData(payload);
+        }
+
+        /// <summary>
+        /// same output as Buy
+        /// </summary>
+        /// <param name="currencyPair"></param>
+        /// <param name="rate"></param>
+        /// <param name="amount"></param>
+        /// <param name="fillOrKill"></param>
+        /// <param name="immediateOrCancel"></param>
+        /// <param name="postOnly"></param>
+        /// <returns></returns>
+        public dynamic Sell(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        {
+            string payload = "command=buy";
+            payload += "&currencyPair=" + currencyPair;
+            payload += "&rate=" + rate.ToString();
+            payload += "&amount=" + amount.ToString();
+            payload += fillOrKill ? "&fillOrKill=1" : "";
+            payload += immediateOrCancel ? "&immediateOrCancel=1" : "";
+            payload += postOnly ? "&postOnly=1" : "";
+            return PostData(payload);
+        }
+
+
+
+
 
         protected override string GenerateSignature(string data)
         {
@@ -95,25 +246,6 @@ namespace ArbitrageBot.APIs.Poloniex
             HMACSHA512 hasher = new HMACSHA512(keyBytes);
             return hasher.ComputeHash(dataBytes)
                 .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
-        }
-
-        /// <summary>
-        /// creates the parameters for the post call, poloniex does not take JSON
-        /// </summary>
-        /// <param name="dict"></param>
-        /// <returns></returns>
-        private string CreateForm(Dictionary<string, object> dict)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, object> param in dict)
-            {
-                if (sb.Length != 0)
-                    sb.Append("&");
-                sb.Append(param.Key);
-                sb.Append("=");
-                sb.Append(param.Value);
-            }
-            return sb.ToString();
         }
 
         /// <summary>
@@ -136,12 +268,11 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <param name="Url"></param>
         /// <param name="payload"></param>
         /// <returns></returns>
-        protected dynamic PostData(object data)
+        protected dynamic PostData(string payload)
         {
             try
             {
                 var request = CreateRequest();
-                string payload = CreateForm(data as Dictionary<string, object>);
                 byte[] payloadBytes = Encoding.ASCII.GetBytes(payload);
                 request.Headers["Sign"] = GenerateSignature(payload);
                 request.Headers["Key"] = KeyLoader.PoloniexKeys.Item1;
@@ -180,6 +311,9 @@ namespace ArbitrageBot.APIs.Poloniex
             }
         }
 
-        
+        private string UnixTimeStamp(DateTime dt)
+        {
+            return (dt.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString();
+        }
     }
 }
