@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
-using ArbitrageBot.APIs;
-using ArbitrageBot.APIs.Bittrex;
-using ArbitrageBot.APIs.Bitfinex;
-using ArbitrageBot.APIs.Poloniex;
+using ArbitrageBot.Util;
 
 namespace ArbitrageBot
 {
@@ -73,18 +66,14 @@ namespace ArbitrageBot
         public static Tuple<string, string> ReadFile(string file)
         {
             string path = FILE_PATH + file;
-            try
+            Tuple<string, string> keys;
+            using (StreamReader sr = new StreamReader(path))
             {
-                using (StreamReader sr = new StreamReader(path))
-                {
-                    return new Tuple<string, string>(sr.ReadLine(), sr.ReadLine());
-                }
+                keys = new Tuple<string, string>(sr.ReadLine(), sr.ReadLine());
             }
-            catch (IOException ex)
-            {
-                Console.WriteLine("Problem getting key from " + path);
-                return null;
-            }
+            if (keys.Item1 == null || keys.Item2 == null)
+                throw new FormatException("Missing key in " + file);
+            return keys;
         }
     }
 }

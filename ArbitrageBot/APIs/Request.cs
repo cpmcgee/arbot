@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace ArbitrageBot.APIs
 {
@@ -12,7 +7,7 @@ namespace ArbitrageBot.APIs
         /// <summary>
         /// used to build the url of a api call before sending to GetData()
         /// </summary>
-        protected string Url { get; set; }
+        internal string Url { get; set; }
 
         /// <summary>
         /// gets the current time in millis to include with authenticated api calls
@@ -27,8 +22,17 @@ namespace ArbitrageBot.APIs
                 return long.MaxValue.ToString() + span.TotalMilliseconds.ToString();
             }
         }
-        //protected static string Nonce { get { return Guid.NewGuid().ToString(); } }
-      
+
+        /// <summary>
+        /// takes a datetime and converts it to a unix timestamp, needed as params for a handful of APIs
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        protected string UnixTimeStamp(DateTime dt)
+        {
+            return (dt.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString();
+        }
+
         /// <summary>
         /// handles the http portion of the API call
         /// </summary>
@@ -37,10 +41,18 @@ namespace ArbitrageBot.APIs
         protected abstract dynamic GetData();
 
         /// <summary>
+        /// handles http portion of post calls
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected abstract dynamic PostData(object payload);
+
+        /// <summary>
         /// hashes some data to create a signature for an authenticated endpoint
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         protected abstract string GenerateSignature(string data);
+
     }
 }

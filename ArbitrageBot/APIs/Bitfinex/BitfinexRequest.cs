@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
@@ -23,14 +21,14 @@ namespace ArbitrageBot.APIs.Bitfinex
         
         /// <summary>
         /// {
-        //  "mid":"244.755",
-        //  "bid":"244.75",
-        //  "ask":"244.76",
-        //  "last_price":"244.82",
-        //  "low":"244.2",
-        //  "high":"248.19",
-        //  "volume":"7842.11542563",
-        //  "timestamp":"1444253422.348340958"
+        ///  "mid":"244.755",
+        ///  "bid":"244.75",
+        ///  "ask":"244.76",
+        ///  "last_price":"244.82",
+        ///  "low":"244.2",
+        ///  "high":"248.19",
+        ///  "volume":"7842.11542563",
+        ///  "timestamp":"1444253422.348340958"
         //}
         /// </summary>
         /// <param name="market"></param>
@@ -38,6 +36,48 @@ namespace ArbitrageBot.APIs.Bitfinex
         public dynamic GetTicker(string market)
         {
             Url += "/pubticker/" + market;
+            return GetData();
+        }
+
+        /// <summary>
+        /// [{
+        ///  "period":1,
+        ///  "volume":"7967.96766158"
+        ///},{
+        ///  "period":7,
+        ///  "volume":"55938.67260266"
+        ///},{
+        ///  "period":30,
+        ///  "volume":"275148.09653645"
+        ///}]
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public dynamic GetStats(string symbol)
+        {
+            Url += "/stats/" + symbol;
+            return GetData();
+        }
+
+        /// <summary>
+        /// {
+        ///  "bids":[{
+        ///    "price":"574.61",
+        ///    "amount":"0.1439327",
+        ///    "timestamp":"1472506127.0"
+        ///  }],
+        ///  "asks":[{
+        ///    "price":"574.62",
+        ///    "amount":"19.1334",
+        ///    "timestamp":"1472506126.0"
+        ///  }]
+        ///}
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public dynamic GetOrderBook(string symbol)
+        {
+            Url += "/book/" + symbol;
             return GetData();
         }
 
@@ -62,7 +102,25 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         public dynamic GetSymbols()
         {
-            Url += "/symbools";
+            Url += "/symbols";
+            return GetData();
+        }
+
+        /// <summary>
+        /// [{
+        ///  "timestamp":1444266681,
+        ///  "tid":11988919,
+        ///  "price":"244.8",
+        ///  "amount":"0.03297384",
+        ///  "exchange":"bitfinex",
+        ///  "type":"sell"
+        ///}]
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public dynamic GetTrades(string symbol)
+        {
+            Url += "/trades/" + symbol;
             return GetData();
         }
         
@@ -271,7 +329,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="Buy_Price_Oco"></param>
         /// <param name="Sell_Price_Oco"></param>
         /// <returns></returns>
-        public dynamic NewOrder(string Symbol, decimal Amount, decimal Price, string Side, string Type, string Exchange, bool Is_Hidden, bool Is_Postonly, int Use_All_Available, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco)
+        public dynamic NewOrder(string Symbol, decimal Amount, decimal Price, string Side, string Type, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco, string Exchange = "bitfinex", bool Is_Hidden = false, bool Is_Postonly = false, int Use_All_Available = 0)
         {
             Url += "/order/new";
             req += "/order/new";
@@ -323,7 +381,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="orderId">id returned when created</param>
         /// <returns></returns>
-        public dynamic CancelOrder(int orderId)
+        public dynamic CancelOrder(string orderId)
         {
             Url += "/order/cancel";
             req += "/order/cancel";
@@ -335,7 +393,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             });
         }
 
-        public dynamic CancelOrders(int[] ids)
+        public dynamic CancelOrders(string[] ids)
         {
             Url += "/order/cancel/multi";
             req += "/order/cancel/multi";
@@ -387,7 +445,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public dynamic OrderStatus(int id)
+        public dynamic OrderStatus(string id)
         {
             Url += "/order/status";
             req += "/order/status";
@@ -439,7 +497,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                 request = req,
                 nonce = Nonce,
                 symbol = marketpair,
-                timestamp = dateAfter,
+                timestamp = UnixTimeStamp(dateAfter),
                 limt_trades = limit,
                 reverse = reverseOrder ? 1 : 0
             });
@@ -493,11 +551,23 @@ namespace ArbitrageBot.APIs.Bitfinex
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
-            catch (Exception ex)
+            catch (WebException ex)
             {
                 Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 return null;
             }
+        }
+
+        protected HttpWebRequest CreateRequest(object payload)
+        {
+            var request = ((HttpWebRequest)WebRequest.Create(Url));
+            request.Method = "POST";
+            request.Accept = "application/json";
+            request.ContentType = "application/json";
+            request.Headers.Add("X-BFX-APIKEY", KeyLoader.BitfinexKeys.Item1);
+            request.Headers.Add("X-BFX-PAYLOAD", EncodeBase64((string)payload));
+            request.Headers.Add("X-BFX-SIGNATURE", GenerateSignature((string)payload));
+            return request;
         }
 
         /// <summary>
@@ -506,18 +576,13 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="Url"></param>
         /// <param name="payload"></param>
         /// <returns></returns>
-        protected dynamic PostData(object payload)
+        protected override dynamic PostData(object payload)
         {
+            var request = CreateRequest(payload);
+
             try
             {
-                var request = ((HttpWebRequest)WebRequest.Create(Url));
                 payload = JsonConvert.SerializeObject(payload) as string;
-                request.Method = "POST";
-                request.Accept = "application/json";
-                request.ContentType = "application/json";
-                request.Headers.Add("X-BFX-APIKEY", KeyLoader.BitfinexKeys.Item1);
-                request.Headers.Add("X-BFX-PAYLOAD", EncodeBase64((string)payload));
-                request.Headers.Add("X-BFX-SIGNATURE", GenerateSignature((string)payload));
                 new StreamWriter(request.GetRequestStream()).Write(payload);
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
@@ -527,11 +592,6 @@ namespace ArbitrageBot.APIs.Bitfinex
             {
                 StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
                 Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Logger.ERROR("Error creating request for " + Url + "\n" + ex.Message);
                 return null;
             }
         }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArbitrageBot.Util
 {
@@ -45,7 +43,7 @@ namespace ArbitrageBot.Util
 
         public static string GetLogFilePath()
         {
-            return properties["logfile"];
+            return properties["logFile"];
         }
     }
 }

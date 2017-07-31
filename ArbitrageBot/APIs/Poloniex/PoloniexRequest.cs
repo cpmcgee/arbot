@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Net;
-using System.Net.Http;
-using System.Web;
 using Newtonsoft.Json;
 using System.IO;
 using System.Numerics;
@@ -16,7 +12,6 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class PoloniexRequest : Request
     {
-        private string payload
 
         new string Nonce
         {
@@ -27,24 +22,95 @@ namespace ArbitrageBot.APIs.Poloniex
             }
         }
 
-        private HttpClient client;
-
         public PoloniexRequest()
         {
             Url = "https://poloniex.com";
-            client = new HttpClient();
         }
 
-        public PoloniexRequest Public()
+        public PublicPoloniexRequest Public()
         {
-            Url += "/public";
-            return this;
+            return new PublicPoloniexRequest();
         }
 
-        public PoloniexRequest Trading()
+        public TradingPoloniexRequest Trading()
         {
-            Url += "/tradingApi";
-            return this;
+            return new TradingPoloniexRequest();
+        }
+
+        protected override string GenerateSignature(string data)
+        {
+            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
+            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.PoloniexKeys.Item2);
+            HMACSHA512 hasher = new HMACSHA512(keyBytes);
+            return hasher.ComputeHash(dataBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
+        }
+
+        /// <summary>
+        /// creates a webrequest object for post calls
+        /// </summary>
+        /// <returns></returns>
+        private HttpWebRequest CreateRequest(object payload)
+        {
+            var request = WebRequest.CreateHttp(Url);
+            byte[] payloadBytes = Encoding.ASCII.GetBytes((string)payload);
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            request.Headers["Sign"] = GenerateSignature((string)payload);
+            request.Headers["Key"] = KeyLoader.PoloniexKeys.Item1;
+            request.ContentLength = payloadBytes.Length;
+            request.GetRequestStream().Write(payloadBytes, 0, payloadBytes.Length);
+            return request;
+        }
+
+        /// <summary>
+        /// makes an api call with a post and returns the payload
+        /// </summary>
+        /// <param name="Url"></param>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected override dynamic PostData(object payload)
+        {
+            var request = CreateRequest(payload);
+
+            try
+            {
+                WebResponse response = request.GetResponse();
+                string raw = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                return JsonConvert.DeserializeObject(raw);
+            }
+            catch (WebException wex)
+            {
+                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
+                return null;
+            }
+        }
+
+
+        protected override dynamic GetData()
+        {
+            try
+            {
+                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
+                string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                return JsonConvert.DeserializeObject(raw);
+            }
+            catch (WebException ex)
+            {
+                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                return null;
+            }
+        }
+    }
+
+    public class PublicPoloniexRequest : PoloniexRequest
+    {
+        public PublicPoloniexRequest()
+        {
+            Url = "https://poloniex.com/public";
         }
 
         /// <summary>
@@ -63,6 +129,41 @@ namespace ArbitrageBot.APIs.Poloniex
         }
 
         /// <summary>
+        /// all currencies:
+        /// {"BTC_NXT":{"asks":[[0.00007600,1164],[0.00007620,1300], ... ], "bids":[[0.00006901,200],[0.00006900,408], ... ], "isFrozen": 0, "seq": 149},"BTC_XMR":...}
+        /// 
+        /// one:
+        ///{"asks":[[0.00007600,1164],[0.00007620,1300], ... ], "bids":[[0.00006901,200],[0.00006900,408], ... ], "isFrozen": 0, "seq": 18849} 
+        /// 
+        /// </summary>
+        /// <param name="currencyPair"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        public dynamic ReturnOrderBook(string currencyPair = "all", int depth = 0)
+        {
+            Url += "?command=returnOrderBook";
+            Url += "&currencyPair=" + currencyPair;
+            Url += depth == 0 ? "" : "&depth=" + depth;
+            return GetData();
+        }
+
+        /// <summary>
+        /// [{"date":"2014-02-10 04:23:23","type":"buy","rate":"0.00007600","amount":"140","total":"0.01064"},{"date":"2014-02-10 01:19:37","type":"buy","rate":"0.00007600","amount":"655","total":"0.04978"}, ... ]
+        /// </summary>
+        /// <param name="currencyPair"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public dynamic ReturnTradeHistory(string currencyPair, DateTime start, DateTime end)
+        {
+            Url += "?command=returnTradeHistory";
+            Url += "&currencyPair=" + currencyPair;
+            Url += "&start=" + UnixTimeStamp(start);
+            Url += "&end=" + UnixTimeStamp(end);
+            return GetData();
+        }
+
+        /// <summary>
         /// {
         /// "1CR":{"maxDailyWithdrawal":10000,"txFee":0.01,"minConf":3,"disabled":0},
         /// "ABY":{"maxDailyWithdrawal":10000000,"txFee":0.01,"minConf":8,"disabled":0}, 
@@ -74,7 +175,14 @@ namespace ArbitrageBot.APIs.Poloniex
             Url += "?command=returnCurrencies";
             return GetData();
         }
+    }
 
+    public class TradingPoloniexRequest : PoloniexRequest
+    {
+        public TradingPoloniexRequest()
+        {
+            Url = "https://poloniex.com/tradingApi";
+        }
         /// <summary>
         /// returns balances in wallets
         /// 
@@ -188,7 +296,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// </summary>
         /// <param name="orderNumber"></param>
         /// <returns></returns>
-        public dynamic ReturnOrderTrades(int orderNumber)
+        public dynamic ReturnOrderTrades(string orderNumber)
         {
             string payload = "command=returnOrderTrades";
             payload += "&nonce=" + Nonce;
@@ -247,7 +355,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// </summary>
         /// <param name="orderNumber"></param>
         /// <returns></returns>
-        public dynamic CancelOrder(int orderNumber)
+        public dynamic CancelOrder(string orderNumber)
         {
             string payload = "command=cancelOrder";
             payload += "&nonce=" + Nonce;
@@ -263,7 +371,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <param name="immediateOrCancel"></param>
         /// <param name="postOnly"></param>
         /// <returns></returns>
-        public dynamic MoveOrder(int orderNumber, decimal rate = 0, decimal amount = 0, bool immediateOrCancel = false, bool postOnly = false)
+        public dynamic MoveOrder(string orderNumber, decimal rate, decimal amount = 0, bool immediateOrCancel = false, bool postOnly = false)
         {
             string payload = "command=moveOrder";
             payload += "&nonce=" + Nonce;
@@ -317,84 +425,6 @@ namespace ArbitrageBot.APIs.Poloniex
             string payload = "command=returnTradeableBalances";
             payload += "&nonce=" + Nonce;
             return PostData(payload);
-        }
-       
-
-        protected override string GenerateSignature(string data)
-        {
-            byte[] dataBytes = Encoding.ASCII.GetBytes(data);
-            byte[] keyBytes = Encoding.ASCII.GetBytes(KeyLoader.PoloniexKeys.Item2);
-            HMACSHA512 hasher = new HMACSHA512(keyBytes);
-            return hasher.ComputeHash(dataBytes)
-                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
-        }
-
-        /// <summary>
-        /// creates a webrequest object for post calls
-        /// </summary>
-        /// <returns></returns>
-        private HttpWebRequest CreateRequest()
-        {
-            var request = WebRequest.CreateHttp(Url);
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.Headers[HttpRequestHeader.AcceptEncoding] = "gzip,deflate";
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-            return request;
-        }
-
-        /// <summary>
-        /// makes an api call with a post and returns the payload
-        /// </summary>
-        /// <param name="Url"></param>
-        /// <param name="payload"></param>
-        /// <returns></returns>
-        protected dynamic PostData(string payload)
-        {
-            try
-            {
-                var request = CreateRequest();
-                byte[] payloadBytes = Encoding.ASCII.GetBytes(payload);
-                request.Headers["Sign"] = GenerateSignature(payload);
-                request.Headers["Key"] = KeyLoader.PoloniexKeys.Item1;
-                request.ContentLength = payloadBytes.Length;
-                request.GetRequestStream().Write(payloadBytes, 0, payloadBytes.Length);
-                WebResponse response = request.GetResponse();
-                string raw = new StreamReader(response.GetResponseStream()).ReadToEnd();
-                return JsonConvert.DeserializeObject(raw);
-            }
-            catch (WebException wex)
-            {
-                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Logger.ERROR("Error creating request for " + Url + "\n" + ex.Message);
-                return null;
-            }
-        }
-
-
-        protected override dynamic GetData()
-        {
-            try
-            {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
-                string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
-                return JsonConvert.DeserializeObject(raw);
-            }
-            catch (Exception ex)
-            {
-                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
-                return null;
-            }
-        }
-
-        private string UnixTimeStamp(DateTime dt)
-        {
-            return (dt.Subtract(new DateTime(1970, 1, 1))).TotalSeconds.ToString();
         }
     }
 }

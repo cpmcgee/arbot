@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Net;
 using Newtonsoft.Json;
@@ -13,7 +11,7 @@ namespace ArbitrageBot.APIs.Bittrex
 {
     public class BittrexRequest : Request
     {
-        private bool authenticated = false;
+        protected bool authenticated = false;
 
         public BittrexRequest()
         {
@@ -26,24 +24,122 @@ namespace ArbitrageBot.APIs.Bittrex
         ///      when called from Bittrex.cs - new Bittrex().Market().BuyLimit(market);
         /// </summary>
         /// <returns></returns>
-        public BittrexRequest Public()
+        public PublicBittrexRequest Public()
         {
-            Url += "/public";
-            return this;
+            return new PublicBittrexRequest();
         }
 
-        public BittrexRequest Market()
+        public MarketBittrexRequest Market()
         {
-            Url += "/market";
-            authenticated = true;
-            return this;
+            return new MarketBittrexRequest();
         }
 
-        public BittrexRequest Account()
+        public AccountBittrexRequest Account()
         {
-            Url += "/account";
-            authenticated = true;
-            return this;
+            return new AccountBittrexRequest();
+        }
+       
+
+        /// <summary>
+        /// takes the string version of a uri
+        /// hashes it with byte array version of private key
+        /// converts it to hex string
+        /// as in version on bitfinex documentation
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        protected override string GenerateSignature(string uri)
+        {
+            byte[] uriBytes = Encoding.UTF8.GetBytes(uri);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(KeyLoader.BittrexKeys.Item2);
+            HMACSHA512 hasher = new HMACSHA512(keyBytes);
+            return hasher.ComputeHash(uriBytes)
+                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
+        }
+
+        /// <summary>
+        /// checks if calling an authenticated endpoint
+        /// creates an appropriate http request
+        /// sends back the dynamic json object
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        protected override dynamic GetData()
+        {
+            if (authenticated)
+            {
+                Url += "&nonce=" + Nonce;
+            }
+            var request = ((HttpWebRequest)WebRequest.Create(Url));
+            if (authenticated)
+            {
+                request.Headers.Add("apisign", GenerateSignature(Url));
+            }
+            try
+            {
+                WebResponse response = request.GetResponse();
+                string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                dynamic data = JsonConvert.DeserializeObject(raw);
+                if (data.success == true)
+                {
+                    return data;
+                }
+                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message);
+                return null;
+            }
+            catch (WebException wex)
+            {
+                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
+                return null;
+            }
+        }
+
+        protected override dynamic PostData(object payload)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class PublicBittrexRequest : BittrexRequest
+    {
+        public PublicBittrexRequest()
+        {
+            Url = "https://bittrex.com/api/v1.1/public";
+            authenticated = false;
+        }
+        /// <summary>
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : [{
+        ///			"MarketCurrency" : "LTC",
+        ///			"BaseCurrency" : "BTC",
+        ///			"MarketCurrencyLong" : "Litecoin",
+        ///			"BaseCurrencyLong" : "Bitcoin",
+        ///			"MinTradeSize" : 0.01000000,
+        ///			"MarketName" : "BTC-LTC",
+        ///			"IsActive" : true,
+        ///			"Created" : "2014-02-13T00:00:00"
+        ///
+        ///        }, {
+        ///			"MarketCurrency" : "DOGE",
+        ///			"BaseCurrency" : "BTC",
+        ///			"MarketCurrencyLong" : "Dogecoin",
+        ///			"BaseCurrencyLong" : "Bitcoin",
+        ///			"MinTradeSize" : 100.00000000,
+        ///			"MarketName" : "BTC-DOGE",
+        ///			"IsActive" : true,
+        ///			"Created" : "2014-02-13T00:00:00"
+        ///		}
+        ///    ]
+        /// }
+        /// </summary>
+        /// <returns></returns>
+        public dynamic GetMarkets()
+        {
+            Url += "/getmarkets";
+            return this.GetData();
         }
 
         /// <summary>
@@ -260,48 +356,22 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetOrderBook(string market, string type, string depth = "")
         {
-            Url += "/getorderbook?market={0}&type={1}";
-            if(depth != "")
+            Url += String.Format("/getorderbook?market={0}&type={1}", market, type);
+            if (depth != "")
             {
                 Url += "&depth=" + depth;
             }
             return GetData();
         }
+    }
 
-        /// <summary>
-        /// {
-        ///	"success" : true,
-        ///	"message" : "",
-        ///	"result" : [{
-        ///			"MarketCurrency" : "LTC",
-        ///			"BaseCurrency" : "BTC",
-        ///			"MarketCurrencyLong" : "Litecoin",
-        ///			"BaseCurrencyLong" : "Bitcoin",
-        ///			"MinTradeSize" : 0.01000000,
-        ///			"MarketName" : "BTC-LTC",
-        ///			"IsActive" : true,
-        ///			"Created" : "2014-02-13T00:00:00"
-        ///
-        ///        }, {
-        ///			"MarketCurrency" : "DOGE",
-        ///			"BaseCurrency" : "BTC",
-        ///			"MarketCurrencyLong" : "Dogecoin",
-        ///			"BaseCurrencyLong" : "Bitcoin",
-        ///			"MinTradeSize" : 100.00000000,
-        ///			"MarketName" : "BTC-DOGE",
-        ///			"IsActive" : true,
-        ///			"Created" : "2014-02-13T00:00:00"
-        ///		}
-        ///    ]
-        /// }
-        /// </summary>
-        /// <returns></returns>
-        public dynamic GetMarkets()
+    public class MarketBittrexRequest : BittrexRequest
+    {
+        public MarketBittrexRequest()
         {
-            Url += "/getmarkets";
-            return GetData();
+            Url = "https://bittrex.com/api/v1.1/market";
+            authenticated = true;
         }
-
         /// <summary>
         /// used to place a limit order
         /// {
@@ -339,7 +409,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic SellLimit(string market, double quantity, double rate)
         {
-            Url += string.Format("/selllimit?apikey={0}&market={1}&quantity={2}&rate={3}");
+            Url += string.Format("/selllimit?apikey={0}&market={1}&quantity={2}&rate={3}", KeyLoader.BittrexKeys.Item1, market, quantity, rate);
             return GetData();
         }
 
@@ -416,7 +486,15 @@ namespace ArbitrageBot.APIs.Bittrex
             }
             return GetData();
         }
-        
+    }
+
+    public class AccountBittrexRequest : BittrexRequest
+    {
+        public AccountBittrexRequest()
+        {
+            Url = "https://bittrex.com/api/v1.1/account";
+            authenticated = true;
+        }
         /// <summary>
         /// gets the deposit history for the given currency
         /// {
@@ -504,7 +582,7 @@ namespace ArbitrageBot.APIs.Bittrex
             Url += string.Format("/getwithdrawalhistory?apikey={0}", KeyLoader.BittrexKeys.Item1); //add api key
             if (currency != "")
             {
-                Url += "&currency=" + currency; 
+                Url += "&currency=" + currency;
             }
             return GetData();
         }
@@ -553,13 +631,13 @@ namespace ArbitrageBot.APIs.Bittrex
         public dynamic GetOrderHistory(string market = "")
         {
             Url += string.Format("/getorderhistory?apikey={0}", KeyLoader.BittrexKeys.Item1);
-            if(market != "")
+            if (market != "")
             {
                 Url += "&market=" + market;
             }
             return GetData();
         }
-        
+
         /// <summary>
         /// Used to retrieve all balances from your account
         ///  {
@@ -589,7 +667,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         public dynamic GetBalances()
         {
-            Url += string.Format("/getbalances?apikey={0}" , KeyLoader.BittrexKeys.Item1);
+            Url += string.Format("/getbalances?apikey={0}", KeyLoader.BittrexKeys.Item1);
             return GetData();
         }
 
@@ -613,29 +691,29 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <param name="currency"></param>
         /// <returns></returns>
         public dynamic GetBalance(string currency)
-            {
-                Url += string.Format("/getbalance?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
-                return GetData();
+        {
+            Url += string.Format("/getbalance?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
+            return GetData();
         }
 
         /// <summary>
         /// Used to retrieve or generate an address for a specific currency. If one does not exist, the call will fail and return ADDRESS_GENERATING until one is available
         /// {
-	    // "success" : true,
-	    // "message" : "",
-	    // "result" : {
-		//  "Currency" : "VTC",
-	    //  "Address" : "Vy5SKeKGXUHKS2WVpJ76HYuKAu3URastUo"
-	    // }
+        // "success" : true,
+        // "message" : "",
+        // "result" : {
+        //  "Currency" : "VTC",
+        //  "Address" : "Vy5SKeKGXUHKS2WVpJ76HYuKAu3URastUo"
+        // }
         //}
         /// </summary>
         /// <param name="currency"></param>
         /// <returns></returns>
         public dynamic GetDepositAddress(string currency)
-            {
-                Url += string.Format("/getdepositaddress?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
-                return GetData();
-            }
+        {
+            Url += string.Format("/getdepositaddress?apikey={0}&currency={1}", KeyLoader.BittrexKeys.Item1, currency);
+            return GetData();
+        }
 
         /// <summary>
         /// Used to withdraw funds from your account. note: please account for txfee.
@@ -653,73 +731,52 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <param name="paymentid"></param>
         /// <returns></returns>
         public dynamic Withdraw(string currency, string quantity, string address, string paymentid = "")
-            {
-                Url += string.Format("/withdraw?apikey={0}&currency={1}&quantity={2}&address={3}", KeyLoader.BittrexKeys.Item1, currency, quantity, address);
-                if (paymentid != "")
-                {
-                    Url += "&paymentid=" + paymentid;
-                }
-                return GetData();
-            }
-
-            public dynamic GetOrder(string uuid)
-            {
-                Url += string.Format("/getorder?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
-                return GetData();
-            }
-
-        /// <summary>
-        /// takes the string version of a uri
-        /// hashes it with byte array version of private key
-        /// converts it to hex string
-        /// as in version on bitfinex documentation
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <returns></returns>
-        protected override string GenerateSignature(string uri)
         {
-            byte[] uriBytes = Encoding.UTF8.GetBytes(uri);
-            byte[] keyBytes = Encoding.UTF8.GetBytes(KeyLoader.BittrexKeys.Item2);
-            HMACSHA512 hasher = new HMACSHA512(keyBytes);
-            return hasher.ComputeHash(uriBytes)
-                .Aggregate("", (s, e) => s + String.Format("{0:x2}", e), s => s); 
+            Url += string.Format("/withdraw?apikey={0}&currency={1}&quantity={2}&address={3}", KeyLoader.BittrexKeys.Item1, currency, quantity, address);
+            if (paymentid != "")
+            {
+                Url += "&paymentid=" + paymentid;
+            }
+            return GetData();
         }
 
         /// <summary>
-        /// checks if calling an authenticated endpoint
-        /// creates an appropriate http request
-        /// sends back the dynamic json object
+        /// {
+        ///	"success" : true,
+        ///	"message" : "",
+        ///	"result" : {
+        ///		"AccountId" : null,
+        ///		"OrderUuid" : "0cb4c4e4-bdc7-4e13-8c13-430e587d2cc1",
+        ///		"Exchange" : "BTC-SHLD",
+        ///		"Type" : "LIMIT_BUY",
+        ///		"Quantity" : 1000.00000000,
+        ///		"QuantityRemaining" : 1000.00000000,
+        ///		"Limit" : 0.00000001,
+        ///		"Reserved" : 0.00001000,
+        ///		"ReserveRemaining" : 0.00001000,
+        ///		"CommissionReserved" : 0.00000002,
+        ///		"CommissionReserveRemaining" : 0.00000002,
+        ///		"CommissionPaid" : 0.00000000,
+        ///		"Price" : 0.00000000,
+        ///		"PricePerUnit" : null,
+        ///		"Opened" : "2014-07-13T07:45:46.27",
+        ///		"Closed" : null,
+        ///		"IsOpen" : true,
+        ///		"Sentinel" : "6c454604-22e2-4fb4-892e-179eede20972",
+        ///		"CancelInitiated" : false,
+        ///		"ImmediateOrCancel" : false,
+        ///		"IsConditional" : false,
+        ///		"Condition" : "NONE",
+        ///		"ConditionTarget" : null
+        ///	}
+        ///}
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="uuid"></param>
         /// <returns></returns>
-        protected override dynamic GetData()
+        public dynamic GetOrder(string uuid)
         {
-            if (authenticated)
-            {
-                Url += "&nonce=" + Nonce;
-            }
-            var request = ((HttpWebRequest)WebRequest.Create(Url));
-            if (authenticated)
-            {
-                request.Headers.Add("apisign", GenerateSignature(Url));
-            }
-            try
-            {
-                WebResponse response = request.GetResponse();
-                string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
-                dynamic data = JsonConvert.DeserializeObject(raw);
-                if (data.success == true)
-                {
-                    return data;
-                }
-                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message);
-                return null;
-            }
-            catch(Exception ex)
-            {
-                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
-                return null;
-            }
+            Url += string.Format("/getorder?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
+            return GetData();
         }
     }
 }
