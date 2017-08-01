@@ -36,7 +36,7 @@ namespace ArbitrageBot.Util
         {
             msg = "[ERROR] " + msg;
             sw.WriteLine(msg);
-            Console.WriteLine(msg);
+            //Console.WriteLine(msg);
         }
 
         public static void WRITE(string msg)

@@ -58,6 +58,8 @@
     <Compile Include="APIs\KeyLoader.cs" />
     <Compile Include="APIs\Poloniex\Poloniex.cs" />
     <Compile Include="APIs\Poloniex\PoloniexRequest.cs" />
+    <Compile Include="Currency\Currency.cs" />
+    <Compile Include="Currency\CurrencyManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Strategies\IStrategy.cs" />

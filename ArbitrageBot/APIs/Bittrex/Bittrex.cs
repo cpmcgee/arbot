@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ArbitrageBot.CurrencyUtil;
 
 namespace ArbitrageBot.APIs.Bittrex
 {
     public class Bittrex : API
     {
+        protected override List<Currency> Currencies
+        {
+            get
+            {
+                return CurrencyManager.BittrexCurrencies;
+            }
+        }
+
         public override decimal GetPriceInBtc(string symbol)
         {
             dynamic jsonData = new BittrexRequest().Public().GetTicker("btc-" + symbol);

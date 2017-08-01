@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ArbitrageBot.APIs;
+using ArbitrageBot.CurrencyUtil;
 
 namespace ArbitrageBot.APIs.Poloniex
 {
     public class Poloniex : API
     {
+        protected override List<Currency> Currencies
+        {
+            get
+            {
+                return CurrencyManager.PoloniexCurrencies;
+            }
+        }
+
         public override decimal GetPriceInBtc(string symbol)
         {
             dynamic data = new PoloniexRequest().Public().ReturnTicker();

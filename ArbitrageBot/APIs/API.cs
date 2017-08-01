@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ArbitrageBot.CurrencyUtil;
 
 namespace ArbitrageBot.APIs
 {
@@ -11,12 +12,7 @@ namespace ArbitrageBot.APIs
         //api keys
         protected string Key { get; set; }
         protected string Secret { get; set; }
-        protected Dictionary<string, decimal> btcPrices;
-
-        public API()
-        {
-            btcPrices = new Dictionary<string, decimal>();
-        }
+        protected abstract List<Currency> Currencies { get; }
 
         /// <summary>
         /// Gets the price of a given symbol in BTC

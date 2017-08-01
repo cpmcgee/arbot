@@ -1,6 +1,7 @@
 ﻿using System;
 using ArbitrageBot.Strategies;
 using ArbitrageBot.Util;
+using ArbitrageBot.CurrencyUtil;
 
 namespace ArbitrageBot
 {
@@ -10,8 +11,12 @@ namespace ArbitrageBot
         {
             //Config.ImportProperties(@"M:\Source\ArbitrageBot\config.txt");
             Config.ImportProperties(@"C:\Users\cmcgee\Desktop\arbot\config.txt");
+
             Logger.Initialize();
-            new TestStrategy().Run();
+            CurrencyManager.Initialize();
+            
+            new PriceCompare().Run();
+            //new TestStrategy().Run();
             Logger.Close();
         }
     }

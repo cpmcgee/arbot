@@ -307,11 +307,32 @@ namespace ArbitrageBot.APIs.Bitfinex
             });
         }
 
- 
-
-        //TODO:
-        //_____Implement "Withdrawal"
-
+        /// <summary>
+        /// [{
+        ///  "status":"success",
+        ///  "message":"Your withdrawal request has been successfully submitted.",
+        ///  "withdrawal_id":586829
+        ///}]
+        /// </summary>
+        /// <param name="coin"></param>
+        /// <param name="walletType"></param>
+        /// <param name="amount"></param>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public dynamic Withdraw(string coin, string walletType, decimal amt, string addr)
+        {
+            Url += "/withdraw";
+            req += "/withdraw";
+            return PostData(new
+            {
+                request = req,
+                nonce = Nonce,
+                amount = amt,
+                currency = coin,
+                walletselected = walletType,
+                address = addr
+            });
+        }
 
         /// <summary>
         /// Creates an authenticated post request with a new order for the account with the given keys
@@ -551,9 +572,10 @@ namespace ArbitrageBot.APIs.Bitfinex
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
-            catch (WebException ex)
+            catch (WebException wex)
             {
-                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
                 return null;
             }
         }

@@ -495,6 +495,7 @@ namespace ArbitrageBot.APIs.Bittrex
             Url = "https://bittrex.com/api/v1.1/account";
             authenticated = true;
         }
+        
         /// <summary>
         /// gets the deposit history for the given currency
         /// {
@@ -662,7 +663,7 @@ namespace ArbitrageBot.APIs.Bittrex
         ///			"Uuid" : null
         ///		}
         ///	]
-        //}
+        ///}
         /// </summary>
         /// <returns></returns>
         public dynamic GetBalances()

@@ -1,10 +1,19 @@
 ﻿using System;
+using ArbitrageBot.CurrencyUtil;
 using System.Collections.Generic;
 
 namespace ArbitrageBot.APIs.Bitfinex
 {
     public class Bitfinex : API
     {
+        protected override List<Currency> Currencies
+        {
+            get
+            {
+                return CurrencyManager.BitfinexCurrencies;
+            }
+        }
+
         public override decimal GetPriceInBtc(string symbol)
         {
             dynamic jsonData = new BitfinexRequest().GetTicker(symbol + "btc");

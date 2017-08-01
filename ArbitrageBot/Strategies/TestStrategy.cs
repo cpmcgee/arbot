@@ -190,6 +190,11 @@ namespace ArbitrageBot.Strategies
                 () => new BitfinexRequest().Transfer(0, BITFINEX_TEST_CURRENCY, BITFINEX_TEST_WALLET, "deposit"));
 
         [TestMethod]
+        public void Test_BitfinexWithdraw() =>
+            AssertMethod("Bitfinex Transfer",
+                () => new BitfinexRequest().Withdraw(BITFINEX_TEST_CURRENCY, BITFINEX_TEST_WALLET, 0, TEST_WITHDRAW_ADDRESS));
+
+        [TestMethod]
         public void Test_BitfinexNewOrder() => 
             AssertMethod("Bitfinex NewOrder", 
                 () => new BitfinexRequest().NewOrder(BITFINEX_TEST_SYMBOL, 0, 0, "buy", "market", false, 0, 0));
