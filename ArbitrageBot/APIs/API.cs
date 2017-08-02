@@ -12,7 +12,6 @@ namespace ArbitrageBot.APIs
         //api keys
         protected string Key { get; set; }
         protected string Secret { get; set; }
-        protected abstract List<Currency> Currencies { get; }
 
         /// <summary>
         /// Gets the price of a given symbol in BTC
@@ -27,11 +26,6 @@ namespace ArbitrageBot.APIs
         /// <returns></returns>
         public abstract List<string> GetSymbols();
 
-        /// <summary>
-        /// sets the key and secret key of the exchange
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="secret"></param>
-        public abstract void SetKeys(string key, string secret);
+
     }
 }

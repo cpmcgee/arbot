@@ -115,8 +115,9 @@ namespace ArbitrageBot.APIs.Poloniex
 
         /// <summary>
         /// {"
-        /// BTC_LTC":{"last":"0.0251","lowestAsk":"0.02589999","highestBid":"0.0251","percentChange":"0.02390438",
-        /// "baseVolume":"6.16485315","quoteVolume":"245.82513926"},"BTC_NXT":{"last":"0.00005730","lowestAsk":"0.00005710",
+        /// "BTC_LTC":{"last":"0.0251","lowestAsk":"0.02589999","highestBid":"0.0251","percentChange":"0.02390438",
+        /// "baseVolume":"6.16485315","quoteVolume":"245.82513926"},
+        /// "BTC_NXT":{"last":"0.00005730","lowestAsk":"0.00005710",
         /// "highestBid":"0.00004903","percentChange":"0.16701570","baseVolume":"0.45347489","quoteVolume":"9094"}, 
         /// ... }
         /// </summary>
@@ -237,7 +238,7 @@ namespace ArbitrageBot.APIs.Poloniex
             payload += "&end=" + end;
             return PostData(payload);
         }
-
+ 
         /// <summary>
         /// {"success":1,"response":"CKXbbs8FAVbtEa397gJHSutmrdrBrhUMxe"}
         /// </summary>

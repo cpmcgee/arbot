@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ArbitrageBot.Util;
 using ArbitrageBot.APIs.Bitfinex;
 using ArbitrageBot.APIs.Bittrex;
 using ArbitrageBot.APIs.Poloniex;
@@ -9,100 +10,51 @@ namespace ArbitrageBot.CurrencyUtil
 {
     static class CurrencyManager
     {
-        public static List<Currency> Currencies = new List<Currency>();
+        public static Dictionary<string, Currency> Currencies = new Dictionary<string, Currency>();
 
         public static List<Currency> BittrexCurrencies = new List<Currency>();
         public static List<Currency> BitfinexCurrencies = new List<Currency>();
         public static List<Currency> PoloniexCurrencies = new List<Currency>();
 
-        public static void Initialize()
+        public static class PriceUpdater
         {
-            foreach (string c in SupportedSymbols)
-            {
-                Currency coin = new Currency(c);
-                Currencies.Add(coin);
-            }
-            Currency.PriceUpdater.LoadPrices();
-            Currency.PriceUpdater.Start();
-        }
+            static BackgroundWorker fullTimeWorker = new BackgroundWorker();
+            //static BackgroundWorker btxInitWorker = new BackgroundWorker();
+            //static BackgroundWorker bfxInitWorker = new BackgroundWorker();
+            //static BackgroundWorker plxInitWorker = new BackgroundWorker();
 
-        public static IReadOnlyCollection<string> SupportedSymbols = new List<string>
-        {
-            "ABY",
-            "AEON",
-            "AMP",
-            "ARDR",
-            "AUR",
-            "BCY",
-            "BLK",
-            "BLOCK",
-            "BTCD",
-            "BTS",
-            "BURST",
-            "CLAM",
-            "CURE",
-            "DASH",
-            "DCR",
-            "DGB",
-            "DOGE",
-            "EFL",
-            "EMC2",
-            "ETC",
-            "ETH",
-            "EXP",
-            "FCT",
-            "FLDC",
-            "FLO",
-            "GAME",
-            "GEO",
-            "GNO",
-            "GNT",
-            "GRC",
-            "GRS",
-            "IOC",
-            "IOTA",
-            "LBC",
-            "LSK",
-            "LTC",
-            "MAID",
-            "MYR",
-            "NAUT",
-            "NAV",
-            "NBT",
-            "NEOS",
-            "NXC",
-            "NXT",
-            "OMNI",
-            "PINK",
-            "POT",
-            "PPC",
-            "QTL",
-            "RADS",
-            "RBY",
-            "RDD",
-            "REP",
-            "SBD",
-            "SC",
-            "SJCX",
-            "SLR",
-            "STEEM",
-            "STRAT",
-            "SYS",
-            "TRUST",
-            "VIA",
-            "VOX",
-            "VRC",
-            "VTC",
-            "XCP",
-            "XDN",
-            "XEM",
-            "XMG",
-            "XMR",
-            "XRP",
-            "XST",
-            "XVC",
-            "ZEC"
-        };
+            static Dictionary<string, Currency> Currencies { get { return CurrencyManager.Currencies; } }
+
+            static bool run = false;
+
+            public static void Start()
+            {
+                fullTimeWorker.DoWork += new DoWorkEventHandler(RunAsync);
+                fullTimeWorker.RunWorkerAsync();
+            }
+
+            private static void RunAsync(object sender, DoWorkEventArgs e)
+            {
+                run = true;
+                while (run)
+                {
+                    UpdatePrices();
+                }
+            }
+
+            public static void UpdatePrices()
+            {
+                Bittrex.UpdatePrices();
+                Bitfinex.UpdatePrices();
+                Poloniex.UpdatePrices();
+            }
+
+            public static void Stop()
+            {
+                run = false;
+                fullTimeWorker.CancelAsync();
+            }
+        }
     }
 }
 

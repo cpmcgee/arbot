@@ -20,25 +20,27 @@ namespace ArbitrageBot.Strategies
             Bitfinex bitfinex = new Bitfinex();
             Poloniex poloniex = new Poloniex();
 
-            Logger.INFO("Price Differences: ");
-
-            foreach (var coin in CurrencyManager.Currencies)
+            Logger.INFO("Press Enter For Price Differences: ");
+            while (true)
             {
-                Logger.WRITE("--Analyzing " + coin.Symbol + "--");
-                decimal? btxPrice;
-                decimal? bfxPrice;
-                decimal? plxPrice;
+                Console.ReadLine();
+                foreach (var coin in CurrencyManager.Currencies)
+                {
+                    Logger.WRITE("--Analyzing " + coin.Value.Symbol + "--");
+                    decimal? btxPrice;
+                    decimal? bfxPrice;
+                    decimal? plxPrice;
 
-                btxPrice = coin.BittrexPrice;
-                Logger.WRITE("Bittrex: " + btxPrice);
-                bfxPrice = coin.BitfinexPrice;
-                Logger.WRITE("Bitfinex: " + bfxPrice);
-                plxPrice = coin.PoloniexPrice;
-                Logger.WRITE("Poloniex: " + plxPrice);
+                    btxPrice = coin.Value.BittrexLast;
+                    Logger.WRITE("Bittrex: " + btxPrice);
+                    bfxPrice = coin.Value.BitfinexLast;
+                    Logger.WRITE("Bitfinex: " + bfxPrice);
+                    plxPrice = coin.Value.PoloniexLast;
+                    Logger.WRITE("Poloniex: " + plxPrice);
 
-                Logger.BREAK();
+                    Logger.BREAK();
+                }
             }
-            Console.ReadLine();
         }
     }
 }

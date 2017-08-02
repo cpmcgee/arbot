@@ -6,11 +6,21 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class Poloniex : API
     {
-        protected override List<Currency> Currencies
+        public Poloniex()
+        {
+            GetCoins();
+            UpdatePrices();
+        }
+
+        public static List<Currency> Currencies
         {
             get
             {
                 return CurrencyManager.PoloniexCurrencies;
+            }
+            set
+            {
+                CurrencyManager.PoloniexCurrencies = value;
             }
         }
 
@@ -39,10 +49,53 @@ namespace ArbitrageBot.APIs.Poloniex
             return symbols;
         }
 
-        public override void SetKeys(string key, string secret)
+        public static void GetCoins()
         {
-            this.Key = key;
-            this.Secret = secret;
+            var data = new PoloniexRequest().Public().ReturnTicker();
+            foreach (var obj in data)
+            {
+                string[] pair = ((string)obj.Name).Split('_');
+                string baseCurrency = pair[0];
+                string symbol = pair[1];
+                if (baseCurrency == "BTC")
+                {
+                    Currency coin;
+                    bool found = CurrencyManager.Currencies.TryGetValue(symbol.ToUpper(), out coin);
+                    if (!found)
+                    {
+                        coin = new Currency(symbol);
+                        CurrencyManager.Currencies.Add(coin.Symbol.ToUpper(), coin);
+                    }
+                    if (!Currencies.Contains(coin))
+                    {
+                        Currencies.Add(coin);
+                    }
+                    coin.PoloniexBtcPair = obj.Name;
+                    coin.PoloniexBid = obj.Value.highestBid;
+                    coin.PoloniexAsk = obj.Value.lowestAsk;
+                    coin.PoloniexLast = obj.Value.last;
+                    coin.PoloniexVolume = obj.Value.quoteVolume;
+                }
+            }
+        }
+
+        public static void UpdatePrices()
+        {
+            var data = new PoloniexRequest().Public().ReturnTicker();
+            foreach (var obj in data)
+            {
+                string[] pair = ((string)obj.Name).Split('_');
+                string baseCurrency = pair[0];
+                string symbol = pair[1];
+                if (baseCurrency == "BTC")
+                {
+                    Currency coin = CurrencyManager.Currencies[symbol];
+                    coin.PoloniexBid = obj.Value.highestBid;
+                    coin.PoloniexAsk = obj.Value.lowestAsk;
+                    coin.PoloniexLast = obj.Value.last;
+                    coin.PoloniexVolume = obj.Value.quoteVolum;
+                }
+            }
         }
     }
 }
