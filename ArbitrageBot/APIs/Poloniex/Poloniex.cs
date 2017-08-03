@@ -56,7 +56,7 @@ namespace ArbitrageBot.APIs.Poloniex
             {
                 string[] pair = ((string)obj.Name).Split('_');
                 string baseCurrency = pair[0];
-                string symbol = pair[1];
+                string symbol = pair[1].ToUpper();
                 if (baseCurrency == "BTC")
                 {
                     Currency coin;
@@ -86,7 +86,7 @@ namespace ArbitrageBot.APIs.Poloniex
             {
                 string[] pair = ((string)obj.Name).Split('_');
                 string baseCurrency = pair[0];
-                string symbol = pair[1];
+                string symbol = pair[1].ToUpper();
                 if (baseCurrency == "BTC")
                 {
                     Currency coin = CurrencyManager.Currencies[symbol];
