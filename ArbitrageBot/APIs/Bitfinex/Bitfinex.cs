@@ -49,8 +49,9 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <summary>
         /// reloads all coins from the api
         /// </summary>
-        public static void GetCoins()
+        private static void GetCoins()
         {
+            Currencies.Clear();
             var pairs = new BitfinexRequest().GetSymbols();
             foreach(var pair in pairs)
             {
@@ -58,20 +59,16 @@ namespace ArbitrageBot.APIs.Bitfinex
                 if (s.Substring(s.Length - 3) == "btc")
                 {
                     string symbol = s.Substring(0, s.Length - 3);
-                    Currency coin;
-                    bool found = CurrencyManager.Currencies.TryGetValue(symbol.ToUpper(), out coin);
-                    if (!found)
+                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
+                    if (coin == null)
                     {
                         coin = new Currency(symbol.ToUpper());
-                        CurrencyManager.Currencies.Add(coin.Symbol.ToUpper(), coin);
-                    }
-                    if (!Currencies.Contains(coin))
-                    {
-                        Currencies.Add(coin);
+                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
                     }
                     coin.BitfinexBtcPair = pair;
                     coin.Symbol = symbol.ToUpper();
                     coin.BitfinexBtcPair = pair;
+                    Currencies.Add(coin);
                 }
             }
         }

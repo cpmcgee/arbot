@@ -49,8 +49,9 @@ namespace ArbitrageBot.APIs.Poloniex
             return symbols;
         }
 
-        public static void GetCoins()
+        private static void GetCoins()
         {
+            Currencies.Clear();
             var data = new PoloniexRequest().Public().ReturnTicker();
             foreach (var obj in data)
             {
@@ -59,22 +60,18 @@ namespace ArbitrageBot.APIs.Poloniex
                 string symbol = pair[1].ToUpper();
                 if (baseCurrency == "BTC")
                 {
-                    Currency coin;
-                    bool found = CurrencyManager.Currencies.TryGetValue(symbol.ToUpper(), out coin);
-                    if (!found)
+                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
+                    if (coin == null)
                     {
-                        coin = new Currency(symbol);
-                        CurrencyManager.Currencies.Add(coin.Symbol.ToUpper(), coin);
-                    }
-                    if (!Currencies.Contains(coin))
-                    {
-                        Currencies.Add(coin);
+                        coin = new Currency(symbol.ToUpper());
+                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
                     }
                     coin.PoloniexBtcPair = obj.Name;
                     coin.PoloniexBid = obj.Value.highestBid;
                     coin.PoloniexAsk = obj.Value.lowestAsk;
                     coin.PoloniexLast = obj.Value.last;
                     coin.PoloniexVolume = obj.Value.quoteVolume;
+                    Currencies.Add(coin);
                 }
             }
         }
@@ -89,7 +86,7 @@ namespace ArbitrageBot.APIs.Poloniex
                 string symbol = pair[1].ToUpper();
                 if (baseCurrency == "BTC")
                 {
-                    Currency coin = CurrencyManager.Currencies[symbol];
+                    Currency coin = CurrencyManager.GetCurrency(symbol);
                     coin.PoloniexBid = obj.Value.highestBid;
                     coin.PoloniexAsk = obj.Value.lowestAsk;
                     coin.PoloniexLast = obj.Value.last;

@@ -66,5 +66,16 @@ namespace ArbitrageBot.CurrencyUtil
             else
                 return ((Currency)obj).Symbol.ToUpper() == Symbol.ToUpper();
         }
+
+        public override int GetHashCode()
+        {
+            unchecked 
+            {
+                int hash = (int)2166136261;
+                hash = (hash * 16777619) ^ Symbol.GetHashCode();
+                hash = (hash * 16777619) ^ Symbol.ToLower().GetHashCode();
+                return hash;
+            }
+        }
     }
 }

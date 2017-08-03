@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ArbitrageBot.Util;
+using System.Collections.Concurrent;
 using ArbitrageBot.APIs.Bitfinex;
 using ArbitrageBot.APIs.Bittrex;
 using ArbitrageBot.APIs.Poloniex;
@@ -9,12 +10,40 @@ using System.ComponentModel;
 namespace ArbitrageBot.CurrencyUtil
 {
     static class CurrencyManager
-    {
-        public static Dictionary<string, Currency> Currencies = new Dictionary<string, Currency>();
+    { 
+        private static ConcurrentDictionary<string, Currency> Currencies = new ConcurrentDictionary<string, Currency>();
 
         public static List<Currency> BittrexCurrencies = new List<Currency>();
         public static List<Currency> BitfinexCurrencies = new List<Currency>();
         public static List<Currency> PoloniexCurrencies = new List<Currency>();
+
+        public static void AddCurrency(string symbol, Currency currency)
+        {
+            Currencies.TryAdd(symbol, currency);
+        }
+
+        /// <summary>
+        /// returns the value in the dictionary
+        /// returns null if not found
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        public static Currency GetCurrency(string symbol)
+        {
+            Currency currency = null;
+            Currencies.TryGetValue(symbol, out currency);
+            return currency;
+        }
+
+        public static bool HasCurrency(string symbol)
+        {
+            return Currencies.ContainsKey(symbol);
+        }
+
+        public static ConcurrentDictionary<string, Currency> GetCurrencies()
+        {
+            return Currencies;
+        }
 
         public static class PriceUpdater
         {
@@ -23,7 +52,7 @@ namespace ArbitrageBot.CurrencyUtil
             //static BackgroundWorker bfxInitWorker = new BackgroundWorker();
             //static BackgroundWorker plxInitWorker = new BackgroundWorker();
 
-            static Dictionary<string, Currency> Currencies { get { return CurrencyManager.Currencies; } }
+            private static ConcurrentDictionary<string, Currency> Currencies { get { return CurrencyManager.Currencies; } }
 
             static bool run = false;
 
