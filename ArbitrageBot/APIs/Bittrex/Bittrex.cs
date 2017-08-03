@@ -47,25 +47,22 @@ namespace ArbitrageBot.APIs.Bittrex
 
         public static void GetCoins()
         {
+            Currencies.Clear();
             dynamic data = new BittrexRequest().Public().GetCurrencies();
             var coins = data.result;
             foreach (var obj in coins)
             {
                 string symbol = (string)obj.Currency;
-                if (symbol == "BTC" || !((bool)obj.IsActive)) continue;
-                Currency coin;
-                bool found = CurrencyManager.Currencies.TryGetValue(symbol, out coin);
-                if (!found)
+                if (symbol == "BTC" || !((bool)obj.IsActive)) continue; //only add active coins traded against btc (dont add btc)
+                Currency coin = CurrencyManager.GetCurrency(symbol);
+                if (coin == null)
                 {
                     coin = new Currency(symbol);
-                    CurrencyManager.Currencies.Add(coin.Symbol.ToUpper(), coin);
-                }
-                if (!Currencies.Contains(coin))
-                {
-                    Currencies.Add(CurrencyManager.Currencies[coin.Symbol.ToUpper()]);
+                    CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
                 }
                 coin.BittrexName = obj.CurrencyLong;
                 coin.BittrexBtcPair = ("BTC-" + symbol);
+                Currencies.Add(coin);
             }
         }
 
@@ -83,11 +80,8 @@ namespace ArbitrageBot.APIs.Bittrex
                 string symbol = pair[1];
                 if (baseCurrency.Equals("BTC"))
                 {
-                    if (symbol == "LTC")
-                        Console.WriteLine();
-                    Currency coin; 
-                    bool found = CurrencyManager.Currencies.TryGetValue(symbol.ToUpper(), out coin);
-                    if (found)
+                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
+                    if (coin != null)
                     {
                         coin.BittrexLast = obj.Last;
                         coin.BittrexAsk = obj.Ask;
