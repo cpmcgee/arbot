@@ -3,27 +3,30 @@ This is a framework built in C# that provides abstracted API access to several m
 
 Project Design:
 
-API.cs abstract class - Provides abstract methods such as GetPriceInBtc(string symbol) for getting information from different APIs. Some classes conforming to this are Bittrex.cs and Poloniex.cs
-  - Ensures implementations of different web API's all have the same methods and functionality
-  - This makes implementation of arbitrage strategies and other strategies using multiple exchanges much easier
-  - Implementations of these methods make use of Request.cs methods (shown below) and parse the dynamic JSON data returned
+Strategies are classes implementing the interface IStrategy, which has one method: Run(). 
+  - Strategies are then run from the Main() method in Program.cs (e.g. new ExampleStrategy.Run()).
+  - Strategies can be run in any order, compounded, or run in parallel from the main method
+  - See TestStrategy.cs for a trivial strategy that simply compares prices of a list of coins
 
-Request.cs abstract class - Provides abstract methods for handling the http requests of the different APIs. 
+Access to price information and trading functionality is through the following exchange classes:
+  - Bittrex.cs
+  - Bittfinex.cs
+  - Poloniex.cs
+These classes can be constructed with no parameters, when being constructed they will load all their price information from their API's and add it to the currency manager.
+
+The CurrencyManager contains all the currencies and their pricing information from all the exchanges, it can be set up to continuously call the APIs and update the prices in the background
+
+API calls are handled by classes inherting from the Request.cs abstract class, which provides abstract methods for handling the http requests of the different APIs. 
   - Examples of classes conforming are BittrexRequest.cs and BitfinexRequest.cs with
   - Request classes for each exchange implement a method for each endpoint of their respective API, the dot notation of the       method calls will be very similar to the slash notation of the URL (e.g. new                                                   BittrexRequest().Public().GetMarketSummary("ltc") will be like visiting bittrex.com/api/v1.1/public/getmarketsummary?    market=btc-ltc (these methods are not overrides of abstract methods as APIs do not have identical endpoints)
     - These methods return dynamic JSON objects that will be parsed by their calling methods
  
-IStrategy.cs interface - Provides a simple interface to implement when creating strategies, has one method, Run(), where the logic from the strategy is implemented.
-  - Strategies are run from the Main() method in Program.cs (e.g. new TestStrategy.Run())
-  - Strategies can be run in any order, compounded, or run in parallel from the main method
-  - Strategies make use of methods in classes conforming to API.cs
-  - See TestStrategy.cs for a trivial strategy that simply compares prices of a list of coins
-  
  
+
 Currently Working On:
   - Finishing implemenation and debugging of of all Bittrex, Bitfiniex, and Poloniex endpoints
   - Finish creating configuration provider
-  - Concurrent updating price tracking module
   - Add more exchanges
-  - Add test project, unit tests, api tests, etc
+  - Implement Order object which handles open and historical orders
+  - Test trading methods with small amounts of currency
  
