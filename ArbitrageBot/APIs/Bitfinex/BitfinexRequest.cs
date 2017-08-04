@@ -222,7 +222,8 @@ namespace ArbitrageBot.APIs.Bitfinex
                 request = req,
                 nonce = Nonce,
                 method = wallet,
-                wallet_name = renew ? 1 : 0
+                wallet_name = name,
+                renew = renew ? 1 : 0
             });
         }
 
@@ -292,7 +293,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="typefrom"></param>
         /// <param name="typeto"></param>
         /// <returns></returns>
-        public dynamic Transfer(decimal amt, string coin, string typefrom, string typeto)
+        public dynamic Transfer(string amt, string coin, string typefrom, string typeto)
         {
             Url += "/transfer";
             req += "/transfer";
@@ -319,7 +320,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="amount"></param>
         /// <param name="address"></param>
         /// <returns></returns>
-        public dynamic Withdraw(string coin, string walletType, decimal amt, string addr)
+        public dynamic Withdraw(string method, string walletType, string amt, string addr)
         {
             Url += "/withdraw";
             req += "/withdraw";
@@ -327,9 +328,9 @@ namespace ArbitrageBot.APIs.Bitfinex
             {
                 request = req,
                 nonce = Nonce,
-                amount = amt,
-                currency = coin,
+                withdraw_type = method,
                 walletselected = walletType,
+                amount = amt,
                 address = addr
             });
         }
@@ -350,7 +351,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="Buy_Price_Oco"></param>
         /// <param name="Sell_Price_Oco"></param>
         /// <returns></returns>
-        public dynamic NewOrder(string Symbol, decimal Amount, decimal Price, string Side, string Type, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco, string Exchange = "bitfinex", bool Is_Hidden = false, bool Is_Postonly = false, int Use_All_Available = 0)
+        public dynamic NewOrder(string Symbol, string Amount, string Price, string Side, string Type, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco, string Exchange = "bitfinex", bool Is_Hidden = false, bool Is_Postonly = false, int Use_All_Available = 0)
         {
             Url += "/order/new";
             req += "/order/new";
@@ -402,7 +403,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="orderId">id returned when created</param>
         /// <returns></returns>
-        public dynamic CancelOrder(string orderId)
+        public dynamic CancelOrder(int orderId)
         {
             Url += "/order/cancel";
             req += "/order/cancel";
@@ -414,7 +415,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             });
         }
 
-        public dynamic CancelOrders(string[] ids)
+        public dynamic CancelOrders(int[] ids)
         {
             Url += "/order/cancel/multi";
             req += "/order/cancel/multi";
@@ -466,7 +467,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public dynamic OrderStatus(string id)
+        public dynamic OrderStatus(int id)
         {
             Url += "/order/status";
             req += "/order/status";
@@ -582,6 +583,7 @@ namespace ArbitrageBot.APIs.Bitfinex
 
         protected HttpWebRequest CreateRequest(object payload)
         {
+            payload = JsonConvert.SerializeObject(payload);
             var request = ((HttpWebRequest)WebRequest.Create(Url));
             request.Method = "POST";
             request.Accept = "application/json";
@@ -612,9 +614,13 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
             catch (WebException wex)
             {
-                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
-                return null;
+                string error = new StreamReader(
+                                    ((HttpWebResponse)wex.Response)
+                                    .GetResponseStream())
+                                    .ReadToEnd();
+                throw new WebException("Failed api call: " + Url + "\n" + error);
+                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //return null;
             }
         }
     }

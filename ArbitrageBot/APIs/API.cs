@@ -13,19 +13,10 @@ namespace ArbitrageBot.APIs
         protected string Key { get; set; }
         protected string Secret { get; set; }
 
-        /// <summary>
-        /// Gets the price of a given symbol in BTC
-        /// </summary>
-        /// <param name="symbol"></param>
-        /// <returns></returns>
-        public abstract decimal GetPriceInBtc(string symbol);
+        public abstract Order Sell();
 
-        /// <summary>
-        /// returns a list of all symbols that actively trade against BTC
-        /// </summary>
-        /// <returns></returns>
-        public abstract List<string> GetSymbols();
+        public abstract Order Buy();
 
-
+        public abstract bool CancelOrder(Order order);
     }
 }

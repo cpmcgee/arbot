@@ -6,20 +6,26 @@ using ArbitrageBot.APIs.Bitfinex;
 using ArbitrageBot.APIs.Bittrex;
 using ArbitrageBot.APIs.Poloniex;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace ArbitrageBot.CurrencyUtil
 {
+    /// <summary>
+    /// This class actively manages currencies available on the exchanges and their properties
+    /// </summary>
     static class CurrencyManager
     { 
+        //dictionary that contains references to all currencies had by all exchanges by their capitalized symbol
         private static ConcurrentDictionary<string, Currency> Currencies = new ConcurrentDictionary<string, Currency>();
 
+        //Lists that contain the currencies held by each exchange
         public static List<Currency> BittrexCurrencies = new List<Currency>();
         public static List<Currency> BitfinexCurrencies = new List<Currency>();
         public static List<Currency> PoloniexCurrencies = new List<Currency>();
 
-        public static void AddCurrency(string symbol, Currency currency)
+        public static bool AddCurrency(string symbol, Currency currency)
         {
-            Currencies.TryAdd(symbol, currency);
+            return Currencies.TryAdd(symbol, currency);
         }
 
         /// <summary>
@@ -45,44 +51,23 @@ namespace ArbitrageBot.CurrencyUtil
             return Currencies;
         }
 
-        public static class PriceUpdater
+        static bool run = false;
+
+        private static void StartAsyncPriceUpdates()
         {
-            static BackgroundWorker fullTimeWorker = new BackgroundWorker();
-            //static BackgroundWorker btxInitWorker = new BackgroundWorker();
-            //static BackgroundWorker bfxInitWorker = new BackgroundWorker();
-            //static BackgroundWorker plxInitWorker = new BackgroundWorker();
-
-            private static ConcurrentDictionary<string, Currency> Currencies { get { return CurrencyManager.Currencies; } }
-
-            static bool run = false;
-
-            public static void Start()
+            run = true;
+            while (run)
             {
-                fullTimeWorker.DoWork += new DoWorkEventHandler(RunAsync);
-                fullTimeWorker.RunWorkerAsync();
+                Task.WhenAll(
+                    Task.Run(() => Bittrex.UpdatePrices()),
+                    Task.Run(() => Bitfinex.UpdatePrices()),
+                    Task.Run(() => Poloniex.UpdatePrices())).Wait();
             }
+        }
 
-            private static void RunAsync(object sender, DoWorkEventArgs e)
-            {
-                run = true;
-                while (run)
-                {
-                    UpdatePrices();
-                }
-            }
-
-            public static void UpdatePrices()
-            {
-                Bittrex.UpdatePrices();
-                Bitfinex.UpdatePrices();
-                Poloniex.UpdatePrices();
-            }
-
-            public static void Stop()
-            {
-                run = false;
-                fullTimeWorker.CancelAsync();
-            }
+        public static void StopAsyncPriceUpdates()
+        {
+            run = false;
         }
     }
 }

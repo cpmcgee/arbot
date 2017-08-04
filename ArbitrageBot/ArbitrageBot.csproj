@@ -54,6 +54,7 @@
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />
     <Compile Include="APIs\Bittrex\BittrexRequest.cs" />
+    <Compile Include="APIs\Order.cs" />
     <Compile Include="APIs\Request.cs" />
     <Compile Include="APIs\KeyLoader.cs" />
     <Compile Include="APIs\Poloniex\Poloniex.cs" />
@@ -64,16 +65,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Strategies\IStrategy.cs" />
     <Compile Include="Strategies\PriceCompare.cs" />
-    <Compile Include="Strategies\TestStrategy.cs" />
+    <Compile Include="UnitTests\ApiUnitTests.cs" />
     <Compile Include="Util\Config.cs" />
     <Compile Include="Util\Logger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UnitTests\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>

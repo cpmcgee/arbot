@@ -13,7 +13,7 @@ namespace ArbitrageBot.APIs
         /// gets the current time in millis to include with authenticated api calls
         /// this nonce generator is tested to work with bittrex and bitfinex 7/26/2017
         /// </summary>
-        protected static string Nonce
+        protected string Nonce
         {
             get
             {

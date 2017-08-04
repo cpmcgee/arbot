@@ -89,9 +89,13 @@ namespace ArbitrageBot.APIs.Bittrex
             }
             catch (WebException wex)
             {
-                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
-                return null;
+                string error = new StreamReader(
+                                     ((HttpWebResponse)wex.Response)
+                                     .GetResponseStream())
+                                     .ReadToEnd();
+                throw new WebException("Failed api call: " + Url + "\n" + error);
+                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //return null;
             }
         }
 
@@ -423,7 +427,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public dynamic Cancel(string uuid)
+        public dynamic Cancel(int uuid)
         {
             Url += string.Format("/cancel?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
             return GetData();
@@ -774,7 +778,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public dynamic GetOrder(string uuid)
+        public dynamic GetOrder(int uuid)
         {
             Url += string.Format("/getorder?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
             return GetData();

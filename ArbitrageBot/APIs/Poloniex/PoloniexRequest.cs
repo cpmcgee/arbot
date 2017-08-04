@@ -13,12 +13,12 @@ namespace ArbitrageBot.APIs.Poloniex
     public class PoloniexRequest : Request
     {
 
-        new string Nonce
+        new protected string Nonce
         {
             get
             {
-                DateTime DateTimeUnixEpochStart = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                return (new BigInteger(Math.Round(DateTime.UtcNow.Subtract(DateTimeUnixEpochStart).TotalMilliseconds * 1000, MidpointRounding.AwayFromZero)).ToString());
+                var start = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                return new BigInteger(Math.Round(DateTime.UtcNow.Subtract(start).TotalMilliseconds * 1000, MidpointRounding.AwayFromZero)).ToString();
             }
         }
 
@@ -83,9 +83,13 @@ namespace ArbitrageBot.APIs.Poloniex
             }
             catch (WebException wex)
             {
-                StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
-                return null;
+                string error = new StreamReader(
+                                    ((HttpWebResponse)wex.Response)
+                                    .GetResponseStream())
+                                    .ReadToEnd();
+                throw new WebException("Failed api call: " + Url + "\n" + error);
+                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //return null;
             }
         }
 
@@ -98,10 +102,15 @@ namespace ArbitrageBot.APIs.Poloniex
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
-            catch (WebException ex)
+            catch (WebException wex)
             {
-                Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
-                return null;
+                string error = new StreamReader(
+                                    ((HttpWebResponse)wex.Response)
+                                    .GetResponseStream())
+                                    .ReadToEnd();
+                throw new WebException("Failed api call: " + Url + "\n" + error);
+                //Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                //return null;
             }
         }
     }
@@ -243,10 +252,11 @@ namespace ArbitrageBot.APIs.Poloniex
         /// {"success":1,"response":"CKXbbs8FAVbtEa397gJHSutmrdrBrhUMxe"}
         /// </summary>
         /// <returns></returns>
-        public dynamic GenerateNewAddress()
+        public dynamic GenerateNewAddress(string coin)
         {
             string payload = "command=generateNewAddress";
             payload += "&nonce=" + Nonce;
+            payload += "&currency=" + coin;
             return PostData(payload);
         }
 
@@ -297,7 +307,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// </summary>
         /// <param name="orderNumber"></param>
         /// <returns></returns>
-        public dynamic ReturnOrderTrades(string orderNumber)
+        public dynamic ReturnOrderTrades(int orderNumber)
         {
             string payload = "command=returnOrderTrades";
             payload += "&nonce=" + Nonce;
@@ -356,10 +366,11 @@ namespace ArbitrageBot.APIs.Poloniex
         /// </summary>
         /// <param name="orderNumber"></param>
         /// <returns></returns>
-        public dynamic CancelOrder(string orderNumber)
+        public dynamic CancelOrder(int orderNumber)
         {
             string payload = "command=cancelOrder";
             payload += "&nonce=" + Nonce;
+            payload += "&orderNumber=" + orderNumber;
             return PostData(payload);
         }
 
@@ -372,12 +383,12 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <param name="immediateOrCancel"></param>
         /// <param name="postOnly"></param>
         /// <returns></returns>
-        public dynamic MoveOrder(string orderNumber, decimal rate, decimal amount = 0, bool immediateOrCancel = false, bool postOnly = false)
+        public dynamic MoveOrder(int orderNumber, decimal rate, decimal amount = 0, bool immediateOrCancel = false, bool postOnly = false)
         {
             string payload = "command=moveOrder";
             payload += "&nonce=" + Nonce;
             payload += "&orderNumber=" + orderNumber;
-            payload += rate == 0 ? "" : "&rate=" + rate.ToString();
+            payload += "&rate=" + rate.ToString();
             payload += amount == 0 ? "" : "&amount=" + amount.ToString();
             payload += immediateOrCancel ? "&immediateOrCancel=1" : "";
             payload += postOnly ? "&postOnly=1" : "";

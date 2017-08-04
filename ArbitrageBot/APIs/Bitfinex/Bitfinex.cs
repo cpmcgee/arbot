@@ -24,26 +24,26 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
         }
 
-        public override decimal GetPriceInBtc(string symbol)
+        public struct Method
         {
-            dynamic jsonData = new BitfinexRequest().GetTicker(symbol + "btc");
-            if (jsonData.message == "Unknown symbol")
-                throw new ArgumentException("No bitfinex market for " + symbol.ToUpper() + "/BTC");
-            decimal price = Convert.ToDecimal(jsonData.last_price);
-            return price;
+            public const string LITECOIN = "litecoin";
+            public const string BITCOIN = "bitcoin";
+            public const string ETHEREUM = "ethereum";
+            public const string ETHEREUM_CLASSIC = "ethereumc";
+            public const string MASTERCOIN = "mastercoin";
+            public const string ZCASH = "zcash";
+            public const string MONERO = "monero";
+            public const string WIRE = "wire";
+            public const string DASH = "dash";
+            public const string RIPPLE = "ripple";
+            public const string EOS = "eos";
         }
 
-        public override List<string> GetSymbols()
+        public struct WalletType
         {
-            dynamic data = new BitfinexRequest().GetSymbolDetails();
-            List<string> symbols = new List<string>();
-            foreach (var symbol in data)
-            {
-                string s = symbol.pair;
-                if (s.Substring(s.Length - 3) == "btc")
-                    symbols.Add(s.Substring(0, s.Length - 3));
-            }
-            return symbols;
+            public const string EXCHANGE = "exchange";
+            public const string TRADING = "trading";
+            public const string FUNDING = "funding";
         }
 
         /// <summary>
@@ -51,8 +51,8 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// </summary>
         private static void GetCoins()
         {
-            Currencies.Clear();
             var pairs = new BitfinexRequest().GetSymbols();
+            Currencies.Clear();
             foreach(var pair in pairs)
             {
                 string s = pair.ToString();
