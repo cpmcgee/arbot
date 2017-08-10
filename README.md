@@ -14,7 +14,7 @@ Access to price information and trading functionality is through the following e
   - Bittfinex.cs
   - Poloniex.cs
    
-These classes can be constructed with no parameters, when being constructed they will load all their price information from their API's and add it to the currency manager (it is recommended to do this in parallel as you will usually want all price information loaded before a strategy begins, and it can take several seconds).
+These are static classes, the Intialize() method will load all their respective available currencies and add them to the currency manager with their stats
 
 The CurrencyManager manages all the currencies and their pricing information from all the exchanges, it can be set up to continuously call the APIs and update the prices in the background. With this we can have a dynamic list of the currencies available and their prices on each exchange.
 
@@ -22,6 +22,8 @@ API calls are handled by classes inherting from the Request.cs abstract class, w
   - Examples of classes conforming are BittrexRequest.cs and BitfinexRequest.cs with
   - Request classes for each exchange implement a method for each endpoint of their respective API, the dot notation of the       method calls will be very similar to the slash notation of the URL (e.g. new                                                   BittrexRequest().Public().GetMarketSummary("ltc") will be like visiting bittrex.com/api/v1.1/public/getmarketsummary?    market=btc-ltc (these methods are not overrides of abstract methods as APIs do not have identical endpoints)
     - These methods return dynamic JSON objects that will be parsed by their calling methods
+
+The OrderManager and Order class function much like a more dynamic version of the CurrencyManager and Currency class. The OrderManager will keep track of all buy and sell orders placed on any exchange during the runtime of the program.
  
 To use authenticated methods you will need to set up your config file and key files which will be processed by the Configuration and KeyLoader classes;
 

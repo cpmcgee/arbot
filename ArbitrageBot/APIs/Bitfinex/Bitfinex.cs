@@ -18,9 +18,13 @@ namespace ArbitrageBot.APIs.Bitfinex
             {
                 return CurrencyManager.BitfinexCurrencies;
             }
-            set
+        }
+
+        public static List<Order> Orders
+        {
+            get
             {
-                CurrencyManager.BitfinexCurrencies = value;
+                return OrderManager.BitfinexOrders;
             }
         }
 
@@ -87,5 +91,61 @@ namespace ArbitrageBot.APIs.Bitfinex
                 coin.BitfinexVolume = obj.volume;
             }
         }
+
+        public static Order Buy(string currency, string quantity, string price)
+        {
+            string market = "btc" + currency.ToLower();
+            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "buy", "limit");
+            if (data.success = false)
+                return null;
+            else
+            {
+                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDecimal(quantity));
+                OrderManager.AddOrder(newOrder);
+                return newOrder;
+            }
+        }
+
+        public static Order Sell(string currency, string quantity, string price)
+        {
+            string market = "btc" + currency.ToLower();
+            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit");
+            if (data.success = false)
+                return null;
+            else
+            {
+                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDecimal(quantity));
+                OrderManager.AddOrder(newOrder);
+                Orders.Add(newOrder);
+                return newOrder;
+            }
+        }
+
+        public static bool CancelOrder(Order order)
+        {
+            return order.Cancel();
+        }
+
+        public static void CheckOrders()
+        {
+            var data = new BitfinexRequest().ActiveOrders();
+            List<Order> openOrders = new List<Order>();
+            foreach (var obj in data)
+            {
+                openOrders.Add(OrderManager.GetOrder(obj.id));
+            }
+            foreach (Order order in OrderManager.BitfinexOrders)
+            {
+                if (!openOrders.Contains(order))
+                    if (order.IsOpen)
+                        order.Fulfill();
+            }
+        }
+
+
+
+
+
+
     }
 }
