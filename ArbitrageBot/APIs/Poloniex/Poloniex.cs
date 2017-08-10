@@ -4,14 +4,8 @@ using ArbitrageBot.CurrencyUtil;
 
 namespace ArbitrageBot.APIs.Poloniex
 {
-    public class Poloniex : API
+    public static class Poloniex
     {
-        public Poloniex()
-        {
-            GetCoins();
-            UpdatePrices();
-        }
-
         public static List<Currency> Currencies
         {
             get

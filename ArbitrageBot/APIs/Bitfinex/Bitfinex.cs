@@ -4,14 +4,8 @@ using System.Collections.Generic;
 
 namespace ArbitrageBot.APIs.Bitfinex
 {
-    public class Bitfinex : API
+    public static class Bitfinex
     {
-        public Bitfinex()
-        {
-            GetCoins();
-            UpdatePrices();
-        }
-
         public static List<Currency> Currencies
         {
             get

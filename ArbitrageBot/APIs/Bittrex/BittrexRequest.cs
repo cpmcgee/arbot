@@ -427,7 +427,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public dynamic Cancel(int uuid)
+        public dynamic Cancel(string uuid)
         {
             Url += string.Format("/cancel?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
             return GetData();
@@ -778,7 +778,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// </summary>
         /// <param name="uuid"></param>
         /// <returns></returns>
-        public dynamic GetOrder(int uuid)
+        public dynamic GetOrder(string uuid)
         {
             Url += string.Format("/getorder?apikey={0}&uuid={1}", KeyLoader.BittrexKeys.Item1, uuid);
             return GetData();

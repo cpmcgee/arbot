@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace ArbitrageBot.APIs
 {
-    public class Order
+    public abstract class OrderType
     {
-
+        public static string BUY { get { return "BUY"; } }
+        public static string SELL { get { return "SELL"; } }
     }
 }

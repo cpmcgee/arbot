@@ -23,7 +23,7 @@ namespace ArbitrageBot.Strategies
 
         const string BITTREX_TEST_MARKET = "BTC-LTC";
         const string BITTREX_TEST_CURRENCY = "LTC";
-        static int BITTREX_ORDER_ID = 0;
+        static string BITTREX_ORDER_ID = "0";
 
         const string BITFINEX_TEST_SYMBOL = "btcusd";
         const string BITFINEX_TEST_CURRENCY = "ltc";
