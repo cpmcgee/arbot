@@ -159,7 +159,7 @@ namespace ArbitrageBot.Strategies
         [TestMethod]
         [ExpectedException(typeof(WebException),
         "{\"message\":\"Order price must be positive.\"}")]
-        public void Test_BitfinexNewOrder() => new BitfinexRequest().NewOrder(BITFINEX_TEST_SYMBOL, "0", "0", "buy", "market");
+        public void Test_BitfinexNewOrder() => new BitfinexRequest().NewOrder(BITFINEX_TEST_SYMBOL, 0, 0, "buy", "market");
 
         [TestMethod]
         [ExpectedException(typeof(WebException),

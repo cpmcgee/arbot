@@ -92,7 +92,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             }
         }
 
-        public static Order Buy(string currency, string quantity, string price)
+        public static Order Buy(string currency, double quantity, double price)
         {
             string market = "btc" + currency.ToLower();
             var data = new BitfinexRequest().NewOrder(currency, quantity, price, "buy", "limit");
@@ -100,13 +100,13 @@ namespace ArbitrageBot.APIs.Bitfinex
                 return null;
             else
             {
-                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDecimal(quantity));
+                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDouble(quantity));
                 OrderManager.AddOrder(newOrder);
                 return newOrder;
             }
         }
 
-        public static Order Sell(string currency, string quantity, string price)
+        public static Order Sell(string currency, double quantity, double price)
         {
             string market = "btc" + currency.ToLower();
             var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit");
@@ -114,7 +114,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                 return null;
             else
             {
-                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDecimal(quantity));
+                BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDouble(quantity));
                 OrderManager.AddOrder(newOrder);
                 Orders.Add(newOrder);
                 return newOrder;
