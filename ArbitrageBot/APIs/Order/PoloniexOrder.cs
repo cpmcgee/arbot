@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ArbitrageBot.APIs.Poloniex;
 
 namespace ArbitrageBot.APIs
 {
@@ -12,7 +9,17 @@ namespace ArbitrageBot.APIs
 
         public override bool Cancel()
         {
-            return Poloniex.Poloniex.CancelOrder(this);
+            try
+            {
+                var data = new PoloniexRequest().Trading().CancelOrder(Convert.ToInt32(Id));
+                if (data.success == 1)
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return false;
         }
     }
 }

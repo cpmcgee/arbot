@@ -42,7 +42,7 @@ namespace ArbitrageBot.APIs.Bittrex
             }
         }
 
-        public static  Order Sell(string currency, double quantity, double price)
+        public static Order Sell(string currency, double quantity, double price)
         {
             string market = "BTC-" + currency.ToUpper();
             var data = new BittrexRequest().Market().SellLimit(market, quantity, price);
@@ -57,13 +57,9 @@ namespace ArbitrageBot.APIs.Bittrex
             }
         }
 
-        public static bool CancelOrder(Order order)
+        public static bool CancelOrder(BittrexOrder order)
         {
-            var data = new BittrexRequest().Market().Cancel(order.Id);
-            if (data.success == false)
-                return false;
-            else
-                return true;
+            return order.Cancel();
         }
 
         private static void GetCoins()
@@ -121,10 +117,11 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 openOrders.Add(OrderManager.GetOrder(obj.Uuid));
             }
-            foreach (Order order in OrderManager.BittrexOrders)
+            foreach (Order order in Orders)
             {
                 if (!openOrders.Contains(order))
-                    order.Fulfill();
+                    if (order.IsOpen)
+                        order.Fulfill();
             }
         }
     }

@@ -64,17 +64,7 @@ namespace ArbitrageBot.APIs.Poloniex
 
         public static bool CancelOrder(Order order)
         {
-            try
-            {
-                var data = new PoloniexRequest().Trading().CancelOrder(Convert.ToInt32(order.Id));
-                if (data.success == 1)
-                    return true;
-            }
-            catch(Exception ex)
-            {
-                return false;
-            }
-            return false;
+            return order.Cancel();
         }
 
         private static void GetCoins()
@@ -120,6 +110,22 @@ namespace ArbitrageBot.APIs.Poloniex
                     coin.PoloniexLast = obj.Value.last;
                     coin.PoloniexVolume = obj.Value.quoteVolum;
                 }
+            }
+        }
+
+        public static void CheckOrders()
+        {
+            var data = new PoloniexRequest().Trading().ReturnOpenOrders();
+            List<Order> openOrders = new List<Order>();
+            foreach (var obj in data)
+            {
+                openOrders.Add(OrderManager.GetOrder((string)obj.Value.orderNumber));
+            }
+            foreach (Order order in Orders)
+            {
+                if (!openOrders.Contains(order))
+                    if (order.IsOpen)
+                        order.Fulfill();
             }
         }
     }

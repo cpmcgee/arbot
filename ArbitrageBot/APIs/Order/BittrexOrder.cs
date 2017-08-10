@@ -13,7 +13,15 @@ namespace ArbitrageBot.APIs
 
         public override bool Cancel()
         {
-            return Bittrex.Bittrex.CancelOrder(this);
+            var data = new BittrexRequest().Market().Cancel(Id);
+            if (data.success == false)
+                return false;
+            else
+            {
+                OrderManager.GetOrder(Id).Cancel();
+                this.IsCancelled = true;
+                return true;
+            }
         }
     }
 }

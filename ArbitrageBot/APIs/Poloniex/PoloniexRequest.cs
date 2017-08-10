@@ -269,7 +269,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// </summary>
         /// <param name="currencyPair"></param>
         /// <returns></returns>
-        public dynamic ReturnOpenOrders(string currencyPair)
+        public dynamic ReturnOpenOrders(string currencyPair = "all")
         {
             string payload = "command=returnOpenOrders";
             payload += "&nonce=" + Nonce;

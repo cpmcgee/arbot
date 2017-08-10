@@ -55,7 +55,6 @@ namespace ArbitrageBot.Strategies
                     Logger.BREAK();
                 }
 
-
                 Logger.BREAK();
                 Logger.BREAK();
 

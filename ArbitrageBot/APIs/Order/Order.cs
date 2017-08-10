@@ -15,11 +15,11 @@ namespace ArbitrageBot.APIs
         public string Id { get; }
         public string Currency { get; }
         public DateTime TimePlaced { get; }
-        public DateTime TimeFulfilled { get; private set; }
+        public DateTime TimeFulfilled { get; protected set; }
         public string Type { get; set; }
         public double Amount { get; set; }
         public bool IsOpen { get; private set; }
-        public bool IsCancelled { get; private set; }
+        public bool IsCancelled { get; protected set; }
 
         public Order(string id, string currency, string type, double amt)
         {
