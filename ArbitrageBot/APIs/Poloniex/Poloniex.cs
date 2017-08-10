@@ -6,6 +6,12 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public static class Poloniex
     {
+        public static void Intialize()
+        {
+            GetCoins();
+            UpdatePrices();
+        }
+
         public static List<Currency> Currencies
         {
             get

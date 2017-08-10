@@ -18,15 +18,10 @@ namespace ArbitrageBot.Strategies
     {
         public void Run()
         {
-
-            Bittrex bittrex;
-            Bitfinex bitfinex;
-            Poloniex poloniex;
-
             Task.WhenAll(
-                Task.Run(() => bittrex = new Bittrex()),
-                Task.Run(() => bitfinex = new Bitfinex()),
-                Task.Run(() => poloniex = new Poloniex())).Wait(); //Asynchronously build exchange objects
+                Task.Run(() => Bittrex.Intialize()),
+                Task.Run(() => Bitfinex.Intialize()),
+                Task.Run(() => Poloniex.Intialize())).Wait(); //Asynchronously build exchange objects
 
             Logger.INFO("Press Enter For Price Differences: ");
             while (true)

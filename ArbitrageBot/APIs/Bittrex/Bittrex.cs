@@ -6,6 +6,12 @@ namespace ArbitrageBot.APIs.Bittrex
 {
     public static class Bittrex
     {
+        public static void Intialize()
+        {
+            GetCoins();
+            UpdatePrices();
+        }
+
         public static List<Currency> Currencies
         {
             get
@@ -59,7 +65,7 @@ namespace ArbitrageBot.APIs.Bittrex
                 return true;
         }
 
-        public static void GetCoins()
+        private static void GetCoins()
         {
             Currencies.Clear();
             dynamic data = new BittrexRequest().Public().GetCurrencies();

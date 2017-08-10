@@ -6,6 +6,12 @@ namespace ArbitrageBot.APIs.Bitfinex
 {
     public static class Bitfinex
     {
+        public static void Intialize()
+        {
+            GetCoins();
+            UpdatePrices();
+        }
+
         public static List<Currency> Currencies
         {
             get
