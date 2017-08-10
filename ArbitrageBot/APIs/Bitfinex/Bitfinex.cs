@@ -102,6 +102,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             {
                 BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDouble(quantity));
                 OrderManager.AddOrder(newOrder);
+                Orders.Add(newOrder);
                 return newOrder;
             }
         }
