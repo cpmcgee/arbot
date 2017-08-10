@@ -351,7 +351,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <param name="Buy_Price_Oco"></param>
         /// <param name="Sell_Price_Oco"></param>
         /// <returns></returns>
-        public dynamic NewOrder(string Symbol, string Amount, string Price, string Side, string Type, bool Oco_Order, float Buy_Price_Oco, float Sell_Price_Oco, string Exchange = "bitfinex", bool Is_Hidden = false, bool Is_Postonly = false, int Use_All_Available = 0)
+        public dynamic NewOrder(string Symbol, string Amount, string Price, string Side, string Type, float Buy_Price_Oco = 0, float Sell_Price_Oco = 0, string Exchange = "bitfinex", bool Is_Hidden = false, bool Is_Postonly = false, int Use_All_Available = 0, bool Oco_Order = false)
         {
             Url += "/order/new";
             req += "/order/new";

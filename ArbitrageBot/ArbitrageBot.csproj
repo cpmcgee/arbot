@@ -54,6 +54,7 @@
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />
     <Compile Include="APIs\Bittrex\BittrexRequest.cs" />
+    <Compile Include="APIs\Order\BitfinexOrder.cs" />
     <Compile Include="APIs\Order\BittrexOrder.cs" />
     <Compile Include="APIs\Order\Order.cs" />
     <Compile Include="APIs\Order\OrderManager.cs" />
