@@ -9,7 +9,7 @@ namespace ArbitrageBot.APIs
 { 
     public class BittrexOrder : Order
     {
-        public BittrexOrder(string id, string currency, string type, decimal amt) : base(id, currency, type, amt) { }
+        public BittrexOrder(string id, string currency, string type, double amt) : base(id, currency, type, amt) { }
 
         public override bool Cancel()
         {

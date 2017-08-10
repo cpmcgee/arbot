@@ -17,11 +17,11 @@ namespace ArbitrageBot.APIs
         public DateTime TimePlaced { get; }
         public DateTime TimeFulfilled { get; private set; }
         public string Type { get; set; }
-        public decimal Amount { get; set; }
+        public double Amount { get; set; }
         public bool IsOpen { get; private set; }
         public bool IsCancelled { get; private set; }
 
-        public Order(string id, string currency, string type, decimal amt)
+        public Order(string id, string currency, string type, double amt)
         {
             this.Id = id;
             this.Currency = currency;

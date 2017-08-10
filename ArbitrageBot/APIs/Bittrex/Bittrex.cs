@@ -36,7 +36,7 @@ namespace ArbitrageBot.APIs.Bittrex
                 return null;
             else
             {
-                BittrexOrder newOrder = new BittrexOrder(data.result.uuid, currency, OrderType.BUY, (decimal)quantity);
+                BittrexOrder newOrder = new BittrexOrder(data.result.uuid, currency, OrderType.BUY, quantity);
                 OrderManager.AddOrder(newOrder);
                 return newOrder;
             }
@@ -50,8 +50,9 @@ namespace ArbitrageBot.APIs.Bittrex
                 return null;
             else
             {
-                BittrexOrder newOrder = new BittrexOrder(data.result.uuid, currency, OrderType.SELL, (decimal)quantity);
+                BittrexOrder newOrder = new BittrexOrder(data.result.uuid, currency, OrderType.SELL, quantity);
                 OrderManager.AddOrder(newOrder);
+                Orders.Add(newOrder);
                 return newOrder;
             }
         }

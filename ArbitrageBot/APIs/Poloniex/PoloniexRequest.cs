@@ -325,7 +325,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <param name="immediateOrCancel"></param>
         /// <param name="postOnly"></param>
         /// <returns></returns>
-        public dynamic Buy(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        public dynamic Buy(string currencyPair, double rate, double amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
         {
             string payload = "command=buy";
             payload += "&nonce=" + Nonce;
@@ -348,7 +348,7 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <param name="immediateOrCancel"></param>
         /// <param name="postOnly"></param>
         /// <returns></returns>
-        public dynamic Sell(string currencyPair, decimal rate, decimal amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
+        public dynamic Sell(string currencyPair, double rate, double amount, bool fillOrKill = false, bool immediateOrCancel = false, bool postOnly = false)
         {
             string payload = "command=buy";
             payload += "&nonce=" + Nonce;

@@ -57,6 +57,7 @@
     <Compile Include="APIs\Order\BittrexOrder.cs" />
     <Compile Include="APIs\Order\Order.cs" />
     <Compile Include="APIs\Order\OrderManager.cs" />
+    <Compile Include="APIs\Order\PoloniexOrder.cs" />
     <Compile Include="APIs\Request.cs" />
     <Compile Include="APIs\KeyLoader.cs" />
     <Compile Include="APIs\Poloniex\Poloniex.cs" />
