@@ -6,12 +6,6 @@ namespace ArbitrageBot.APIs.Bitfinex
 {
     public static class Bitfinex
     {
-        public static void Intialize()
-        {
-            GetCoins();
-            UpdatePrices();
-        }
-
         public static List<Currency> Currencies
         {
             get
@@ -50,47 +44,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             public const string FUNDING = "funding";
         }
 
-        /// <summary>
-        /// reloads all coins from the api
-        /// </summary>
-        private static void GetCoins()
-        {
-            var pairs = new BitfinexRequest().GetSymbols();
-            Currencies.Clear();
-            foreach(var pair in pairs)
-            {
-                string s = pair.ToString();
-                if (s.Substring(s.Length - 3) == "btc")
-                {
-                    string symbol = s.Substring(0, s.Length - 3);
-                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
-                    if (coin == null)
-                    {
-                        coin = new Currency(symbol.ToUpper());
-                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
-                    }
-                    coin.BitfinexBtcPair = pair;
-                    coin.Symbol = symbol.ToUpper();
-                    coin.BitfinexBtcPair = pair;
-                    Currencies.Add(coin);
-                }
-            }
-        }
-
-        /// <summary>
-        /// reloads prices from api (done in background, dont worry about it)
-        /// </summary>
-        public static void UpdatePrices()
-        {
-            foreach (Currency coin in Currencies)
-            {
-                var obj = new BitfinexRequest().GetTicker(coin.BitfinexBtcPair);
-                coin.BitfinexAsk = obj.ask;
-                coin.BitfinexBid = obj.bid;
-                coin.BitfinexLast = obj.last_price;
-                coin.BitfinexVolume = obj.volume;
-            }
-        }
+        
 
         public static Order Buy(string currency, double quantity, double price)
         {
@@ -142,11 +96,5 @@ namespace ArbitrageBot.APIs.Bitfinex
                         order.Fulfill();
             }
         }
-
-
-
-
-
-
     }
 }

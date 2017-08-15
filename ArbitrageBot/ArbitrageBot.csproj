@@ -49,7 +49,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="APIs\API.cs" />
     <Compile Include="APIs\Bitfinex\Bitfinex.cs" />
     <Compile Include="APIs\Bitfinex\BitfinexRequest.cs" />
     <Compile Include="APIs\Bittrex\Bittrex.cs" />

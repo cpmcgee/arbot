@@ -39,7 +39,14 @@ namespace ArbitrageBot.CurrencyUtil
         public string PoloniexBtcPair { get; set; }
 
 
-        public decimal ?BittrexBid { get; set; }
+        public decimal BittrexBalance { get; }
+
+        public decimal BitfinexBalance { get; }
+
+        public decimal PoloniexBalance { get; }
+
+
+        public decimal ?BittrexBid { get; internal set; }
 
         public decimal ?BittrexAsk { get; set; }
 
