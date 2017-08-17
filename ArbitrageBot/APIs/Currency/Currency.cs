@@ -18,51 +18,51 @@ namespace ArbitrageBot.CurrencyUtil
 
         public string Symbol { get; set; }
 
-        public string BittrexName { get; set; }
+        public string BittrexName { get; internal set; }
 
-        public string BitfinexName { get; set; }
+        public string BitfinexName { get; internal set; }
 
-        public string PoloniexName { get; set; }
-
-
-        public string BittrexVolume { get; set; }
-
-        public string BitfinexVolume { get; set; }
-
-        public string PoloniexVolume { get; set; }
+        public string PoloniexName { get; internal set; }
 
 
-        public string BittrexBtcPair { get; set; }
+        public string BittrexVolume { get; internal set; }
 
-        public string BitfinexBtcPair { get; set; }
+        public string BitfinexVolume { get; internal set; }
 
-        public string PoloniexBtcPair { get; set; }
-
-
-        public decimal BittrexBalance { get; }
-
-        public decimal BitfinexBalance { get; }
-
-        public decimal PoloniexBalance { get; }
+        public string PoloniexVolume { get; internal set; }
 
 
-        public decimal ?BittrexBid { get; internal set; }
+        public string BittrexBtcPair { get; internal set; }
 
-        public decimal ?BittrexAsk { get; set; }
+        public string BitfinexBtcPair { get; internal set; }
 
-        public decimal ?BittrexLast { get; set; }
+        public string PoloniexBtcPair { get; internal set; }
 
-        public decimal? BitfinexBid { get; set; }
 
-        public decimal? BitfinexAsk { get; set; }
+        public double BittrexBalance { get; }
 
-        public decimal? BitfinexLast { get; set; }
+        public double BitfinexBalance { get; }
 
-        public decimal? PoloniexBid { get; set; }
+        public double PoloniexBalance { get; }
 
-        public decimal? PoloniexAsk { get; set; }
 
-        public decimal? PoloniexLast { get; set; }
+        public double ?BittrexBid { get; internal set; }
+
+        public double ?BittrexAsk { get; internal set; }
+
+        public double ?BittrexLast { get; internal set; }
+
+        public double? BitfinexBid { get; internal set; }
+
+        public double? BitfinexAsk { get; internal set; }
+
+        public double? BitfinexLast { get; internal set; }
+
+        public double? PoloniexBid { get; internal set; }
+
+        public double? PoloniexAsk { get; internal set; }
+
+        public double? PoloniexLast { get; internal set; }
 
 
 

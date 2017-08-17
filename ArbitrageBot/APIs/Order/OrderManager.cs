@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using ArbitrageBot.APIs.Bittrex;
+using ArbitrageBot.APIs.Poloniex;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
@@ -52,15 +52,50 @@ namespace ArbitrageBot.APIs
             while (run)
             {
                 Task.WhenAll(
-                    Task.Run(() => Bittrex.Bittrex.CheckOrders()),
-                    Task.Run(() => Bitfinex.Bitfinex.CheckOrders()),
-                    Task.Run(() => Poloniex.Poloniex.CheckOrders())).Wait();
+                    Task.Run(() => CheckBittrexOrders()),
+                    Task.Run(() => CheckBitfinexOrders()),
+                    Task.Run(() => CheckPoloniexOrders())).Wait();
             }
         }
 
         public static void StopAsyncOrderChecking()
         {
             run = false;
+        }
+
+        private static void CheckBittrexOrders()
+        {
+            var data = new BittrexRequest().Market().GetOpenOrders().result;
+            List<Order> openOrders = new List<Order>();
+            foreach (var obj in data)
+            {
+                openOrders.Add(OrderManager.GetOrder(obj.Uuid));
+            }
+            foreach (Order order in BittrexOrders)
+            {
+                if (!openOrders.Contains(order))
+                    if (order.IsOpen)
+                        order.Fulfill();
+            }
+        }
+
+        private static void CheckPoloniexOrders()
+        {
+            var data = new PoloniexRequest().Trading().ReturnOpenOrders();
+            List<Order> openOrders = new List<Order>();
+            foreach (var obj in data)
+            {
+                foreach (var order in obj.Value)
+                {
+                    openOrders.Add(OrderManager.GetOrder((string)order.orderNumber));
+                }
+            }
+            foreach (Order order in PoloniexOrders)
+            {
+                if (!openOrders.Contains(order))
+                    if (order.IsOpen)
+                        order.Fulfill();
+            }
         }
     }
 }
