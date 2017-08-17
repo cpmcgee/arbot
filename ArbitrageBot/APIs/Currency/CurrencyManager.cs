@@ -224,6 +224,15 @@ namespace ArbitrageBot.CurrencyUtil
 
         //update balances here
 
+        public static void UpdateBitfinexBalances()
+        {
+            var data = new BitfinexRequest().WalletBalances();
+            foreach (var obj in data)
+            {
+                Currencies[obj.currency] += Convert.ToDouble(obj.available);
+            }
+        }
+
         #endregion
     }
 }

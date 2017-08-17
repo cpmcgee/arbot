@@ -53,7 +53,7 @@ namespace ArbitrageBot.APIs
             {
                 Task.WhenAll(
                     Task.Run(() => Bittrex.Bittrex.CheckOrders()),
-                    Task.Run(() => Bitfinex.Bitfinex.CheckOrders()),
+                    Task.Run(() => CheckBitfinexOrders()),
                     Task.Run(() => Poloniex.Poloniex.CheckOrders())).Wait();
             }
         }
@@ -61,6 +61,22 @@ namespace ArbitrageBot.APIs
         public static void StopAsyncOrderChecking()
         {
             run = false;
+        }
+
+        private static void CheckBitfinexOrders()
+        {
+            var data = new Bitfinex.BitfinexRequest().ActiveOrders();
+            List<Order> openOrders = new List<Order>();
+            foreach (var obj in data)
+            {
+                openOrders.Add(OrderManager.GetOrder(obj.id));
+            }
+            foreach (Order order in BitfinexOrders)
+            {
+                if (!openOrders.Contains(order))
+                    if (order.IsOpen)
+                        order.Fulfill();
+            }
         }
     }
 }

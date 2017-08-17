@@ -64,7 +64,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         public static Order Sell(string currency, double quantity, double price)
         {
             string market = "btc" + currency.ToLower();
-            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit");
+            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit"); 
             if (data.success = false)
                 return null;
             else
@@ -81,20 +81,8 @@ namespace ArbitrageBot.APIs.Bitfinex
             return order.Cancel();
         }
 
-        public static void CheckOrders()
+        public static double GetBalance(string symbol)
         {
-            var data = new BitfinexRequest().ActiveOrders();
-            List<Order> openOrders = new List<Order>();
-            foreach (var obj in data)
-            {
-                openOrders.Add(OrderManager.GetOrder(obj.id));
-            }
-            foreach (Order order in OrderManager.BitfinexOrders)
-            {
-                if (!openOrders.Contains(order))
-                    if (order.IsOpen)
-                        order.Fulfill();
-            }
+            return CurrencyManager.GetCurrency(symbol).BitfinexBalance;
         }
-    }
 }
