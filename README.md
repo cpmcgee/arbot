@@ -13,13 +13,11 @@ Access to price information and trading functionality is through the following e
   - Bittrex.cs
   - Bittfinex.cs
   - Poloniex.cs
-   
-These are static classes, the Intialize() method will load all their respective available currencies and add them to the currency manager with their stats
 
-The CurrencyManager manages all the currencies and their pricing information from all the exchanges, it can be set up to continuously call the APIs and update the prices in the background. With this we can have a dynamic list of the currencies available and their prices on each exchange.
+The CurrencyManager manages all the currencies available through the exchanges; it holds information such as price, account balance, and the symbol string literal on each exchange in a dictionary of Currency objects. It continuously calls the APIs and updates the prices and balances in the background. With this we can have a dynamic list of available currencies immediately accessible at all times with up-to-date information.
 
 API calls are handled by classes inherting from the Request.cs abstract class, which enforces methods for handling the http requests of the different APIs. 
-  - Examples of classes conforming are BittrexRequest.cs and BitfinexRequest.cs with
+  - Examples of classes conforming are BittrexRequest.cs and BitfinexRequest.cs 
   - Request classes for each exchange implement a method for each endpoint of their respective API, the dot notation of the       method calls will be very similar to the slash notation of the URL (e.g. new                                                   BittrexRequest().Public().GetMarketSummary("ltc") will be like visiting bittrex.com/api/v1.1/public/getmarketsummary?    market=btc-ltc (these methods are not overrides of abstract methods as APIs do not have identical endpoints)
     - These methods return dynamic JSON objects that will be parsed by their calling methods
 
