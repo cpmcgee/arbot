@@ -14,14 +14,14 @@ namespace ArbitrageBot.CurrencyUtil
     /// This class actively manages currencies available on the exchanges and their properties
     /// </summary>
     static class CurrencyManager
-    { 
+    {
         //dictionary that contains references to all currencies had by all exchanges by their capitalized symbol
-        private static ConcurrentDictionary<string, Currency> Currencies = new ConcurrentDictionary<string, Currency>();
+        private static ConcurrentDictionary<string, Currency> Currencies { get; set; } = null;
 
         //Lists that contain the currencies held by each exchange
-        public static List<Currency> BittrexCurrencies = new List<Currency>();
-        public static List<Currency> BitfinexCurrencies = new List<Currency>();
-        public static List<Currency> PoloniexCurrencies = new List<Currency>();
+        public static List<Currency> BittrexCurrencies { get; private set; }
+        public static List<Currency> BitfinexCurrencies { get; private set; }
+        public static List<Currency> PoloniexCurrencies { get; private set; }
 
         public static bool AddCurrency(string symbol, Currency currency)
         {
@@ -51,15 +51,110 @@ namespace ArbitrageBot.CurrencyUtil
             return Currencies;
         }
 
+        static bool run = false;
+        public static void StopAsyncUpdates() { run = false; }
+        public static void StartAsyncUpdates()
+        {
+            run = true;
+            while (run)
+            {
+                Task.WhenAll(
+                    Task.Run(() => UpdatePrices()),
+                    Task.Run(() => UpdateBalances())).Wait();
+            }
+        }
+
+        /// <summary>
+        /// reloding all coins from the api
+        /// </summary>
+        #region Loading Coins
+
         public static void LoadCoins()
         {
-            Task.WhenAll(
+            if (Currencies == null)
+                Task.WhenAll(
                     Task.Run(() => GetBittrexCoins()),
                     Task.Run(() => GetBitfinexCoins()),
                     Task.Run(() => GetPoloniexCoins())).Wait();
         }
 
+        private static void GetBittrexCoins()
+        {
+            BittrexCurrencies = new List<Currency>();
+            dynamic data = new BittrexRequest().Public().GetCurrencies();
+            var coins = data.result;
+            foreach (var obj in coins)
+            {
+                string symbol = (string)obj.Currency;
+                if (symbol == "BTC" || !((bool)obj.IsActive)) continue; //only add active coins traded against btc (dont add btc)
+                Currency coin = CurrencyManager.GetCurrency(symbol);
+                if (coin == null)
+                {
+                    coin = new Currency(symbol);
+                    CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
+                }
+                coin.BittrexName = obj.CurrencyLong;
+                coin.BittrexBtcPair = ("BTC-" + symbol);
+                BittrexCurrencies.Add(coin);
+            }
+        }
 
+        private static void GetBitfinexCoins()
+        {
+            var pairs = new BitfinexRequest().GetSymbols();
+            BitfinexCurrencies = new List<Currency>();
+            foreach (var pair in pairs)
+            {
+                string s = pair.ToString();
+                if (s.Substring(s.Length - 3) == "btc")
+                {
+                    string symbol = s.Substring(0, s.Length - 3);
+                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
+                    if (coin == null)
+                    {
+                        coin = new Currency(symbol.ToUpper());
+                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
+                    }
+                    coin.BitfinexBtcPair = pair;
+                    coin.Symbol = symbol.ToUpper();
+                    coin.BitfinexBtcPair = pair;
+                    BitfinexCurrencies.Add(coin);
+                }
+            }
+        }
+
+        private static void GetPoloniexCoins()
+        {
+            PoloniexCurrencies = new List<Currency>();
+            var data = new PoloniexRequest().Public().ReturnTicker();
+            foreach (var obj in data)
+            {
+                string[] pair = ((string)obj.Name).Split('_');
+                string baseCurrency = pair[0];
+                string symbol = pair[1].ToUpper();
+                if (baseCurrency == "BTC")
+                {
+                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
+                    if (coin == null)
+                    {
+                        coin = new Currency(symbol.ToUpper());
+                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
+                    }
+                    coin.PoloniexBtcPair = obj.Name;
+                    coin.PoloniexBid = obj.Value.highestBid;
+                    coin.PoloniexAsk = obj.Value.lowestAsk;
+                    coin.PoloniexLast = obj.Value.last;
+                    coin.PoloniexVolume = obj.Value.quoteVolume;
+                    PoloniexCurrencies.Add(coin);
+                }
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// updating prices of all coins from api
+        /// </summary>
         #region Price Updates
 
 
@@ -92,58 +187,7 @@ namespace ArbitrageBot.CurrencyUtil
                 }
             }
         }
-
-        public static void GetBittrexCoins()
-        {
-            BittrexCurrencies.Clear();
-            dynamic data = new BittrexRequest().Public().GetCurrencies();
-            var coins = data.result;
-            foreach (var obj in coins)
-            {
-                string symbol = (string)obj.Currency;
-                if (symbol == "BTC" || !((bool)obj.IsActive)) continue; //only add active coins traded against btc (dont add btc)
-                Currency coin = CurrencyManager.GetCurrency(symbol);
-                if (coin == null)
-                {
-                    coin = new Currency(symbol);
-                    CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
-                }
-                coin.BittrexName = obj.CurrencyLong;
-                coin.BittrexBtcPair = ("BTC-" + symbol);
-                BittrexCurrencies.Add(coin);
-            }
-        }
-
-        /// <summary>
-        /// reloads all coins from the api
-        /// </summary>
-        private static void GetBitfinexCoins()
-        {
-            var pairs = new BitfinexRequest().GetSymbols();
-            BitfinexCurrencies.Clear();
-            foreach (var pair in pairs)
-            {
-                string s = pair.ToString();
-                if (s.Substring(s.Length - 3) == "btc")
-                {
-                    string symbol = s.Substring(0, s.Length - 3);
-                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
-                    if (coin == null)
-                    {
-                        coin = new Currency(symbol.ToUpper());
-                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
-                    }
-                    coin.BitfinexBtcPair = pair;
-                    coin.Symbol = symbol.ToUpper();
-                    coin.BitfinexBtcPair = pair;
-                    BitfinexCurrencies.Add(coin);
-                }
-            }
-        }
-
-        /// <summary>
-        /// reloads prices from api (done in background, dont worry about it)
-        /// </summary>
+        
         public static void UpdateBitfinexPrices()
         {
             foreach (Currency coin in BitfinexCurrencies)
@@ -155,34 +199,7 @@ namespace ArbitrageBot.CurrencyUtil
                 coin.BitfinexVolume = obj.volume;
             }
         }
-
-        private static void GetPoloniexCoins()
-        {
-            PoloniexCurrencies.Clear();
-            var data = new PoloniexRequest().Public().ReturnTicker();
-            foreach (var obj in data)
-            {
-                string[] pair = ((string)obj.Name).Split('_');
-                string baseCurrency = pair[0];
-                string symbol = pair[1].ToUpper();
-                if (baseCurrency == "BTC")
-                {
-                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
-                    if (coin == null)
-                    {
-                        coin = new Currency(symbol.ToUpper());
-                        CurrencyManager.AddCurrency(coin.Symbol.ToUpper(), coin);
-                    }
-                    coin.PoloniexBtcPair = obj.Name;
-                    coin.PoloniexBid = obj.Value.highestBid;
-                    coin.PoloniexAsk = obj.Value.lowestAsk;
-                    coin.PoloniexLast = obj.Value.last;
-                    coin.PoloniexVolume = obj.Value.quoteVolume;
-                    PoloniexCurrencies.Add(coin);
-                }
-            }
-        }
-
+        
         private static void UpdatePoloniexPrices()
         {
             var data = new PoloniexRequest().Public().ReturnTicker();
@@ -201,28 +218,21 @@ namespace ArbitrageBot.CurrencyUtil
                 }
             }
         }
-        
-        static bool run = false;
-
-        private static void StartAsyncPriceUpdates()
-        {
-            run = true;
-            while (run)
-            {
-                Task.WhenAll(
-                    Task.Run(() => UpdatePrices()),
-                    Task.Run(() => UpdateBalances())).Wait();
-            }
-        }
-
-        public static void StopAsyncUpdates()
-        {
-            run = false;
-        }
 
         #endregion
 
+        /// <summary>
+        /// updating wallet balances from api
+        /// </summary>
         #region Balance Updates
+
+        private static void UpdateBalances()
+        {
+            Task.WhenAll(
+                    Task.Run(() => UpdateBittrexBalances()),
+                    Task.Run(() => UpdateBitfinexBalances()),
+                    Task.Run(() => UpdatePoloniexBalances())).Wait();
+        }
 
         public static void UpdateBittrexBalances()
         {
@@ -241,18 +251,7 @@ namespace ArbitrageBot.CurrencyUtil
                 Currencies[obj.Name.ToString()].PoloniexBalance = Convert.ToDouble(obj.Value);
             }
         }
-
-
-
-
-        private static void UpdateBalances()
-        {
-            Task.WhenAll(
-                    Task.Run(() => UpdateBittrexBalances()),
-                    Task.Run(() => UpdateBitfinexBalances()),
-                    Task.Run(() => UpdatePoloniexBalances())).Wait();
-        }
-
+        
         public static void UpdateBitfinexBalances()
         {
             var data = new BitfinexRequest().WalletBalances();

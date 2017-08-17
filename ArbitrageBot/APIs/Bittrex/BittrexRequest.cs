@@ -22,6 +22,9 @@ namespace ArbitrageBot.APIs.Bittrex
         /// below three methods allow for method chaining in order to make syntax similar to the url being access
         /// i.e. https://bittrex.com/api/v1.1/market/buylimit?market=.....
         ///      when called from Bittrex.cs - new Bittrex().Market().BuyLimit(market);
+        /// By enforcing different types returned for each type of API call, intellisense will show...
+        ///   ...what methods are available while writing a request
+        /// These subclasses are implemented within this file and simply contain the methods
         /// </summary>
         /// <returns></returns>
         public PublicBittrexRequest Public()

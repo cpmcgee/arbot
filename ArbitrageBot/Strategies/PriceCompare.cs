@@ -18,29 +18,26 @@ namespace ArbitrageBot.Strategies
     {
         public void Run()
         {
-            Task.WhenAll(
-                Task.Run(() => Bittrex.Intialize()),
-                Task.Run(() => Bitfinex.Intialize()),
-                Task.Run(() => Poloniex.Intialize())).Wait(); //Asynchronously build exchange objects
+            CurrencyManager.StartAsyncUpdates(); //Asynchronously build exchange objects
 
             Logger.INFO("Press Enter For Price Differences: ");
             while (true)
             {
-                decimal? maxDiff = 0;
+                double? maxDiff = 0;
                 string maxCurrency = "";
-                decimal? totalDiff = 0;
+                double? totalDiff = 0;
                 Console.ReadLine();
                 foreach (var coin in CurrencyManager.GetCurrencies())
                 {
-                    decimal? max = null;
-                    decimal? min = null;
-                    decimal? diff = null;
+                    double? max = null;
+                    double? min = null;
+                    double? diff = null;
 
                     PrintStats(coin, out max, out min, out diff);
 
                     if (max != null && min != null)
                     {
-                        diff = Math.Abs((decimal)max - (decimal)min);
+                        diff = Math.Abs((double)max - (double)min);
                         totalDiff += diff;
                         if (diff > maxDiff)
                         {
@@ -64,22 +61,22 @@ namespace ArbitrageBot.Strategies
             }
         }
 
-        private decimal? Max(decimal?[] prices)
+        private double? Max(double?[] prices)
         {
             return prices.Max();
         }
 
-        private decimal? Min(decimal?[] prices)
+        private double? Min(double?[] prices)
         {
             return prices.Min();
         }
 
-        private void PrintStats(KeyValuePair<string, Currency> coin, out decimal? max, out decimal? min, out decimal? diff)
+        private void PrintStats(KeyValuePair<string, Currency> coin, out double? max, out double? min, out double? diff)
         {
             Logger.WRITE("--Getting Prices for " + coin.Value.Symbol + "--");
-            decimal? btxPrice = null;
-            decimal? bfxPrice = null;
-            decimal? plxPrice = null;
+            double? btxPrice = null;
+            double? bfxPrice = null;
+            double? plxPrice = null;
             max = null;
             min = null;
             diff = null;
@@ -91,8 +88,8 @@ namespace ArbitrageBot.Strategies
             plxPrice = coin.Value.PoloniexLast;
             Logger.WRITE("Poloniex: " + plxPrice);
 
-            max = Max(new decimal?[] { btxPrice, bfxPrice, plxPrice });
-            min = Min(new decimal?[] { btxPrice, bfxPrice, plxPrice });
+            max = Max(new double?[] { btxPrice, bfxPrice, plxPrice });
+            min = Min(new double?[] { btxPrice, bfxPrice, plxPrice });
         }
 
         private void PrintStats(string symbol)

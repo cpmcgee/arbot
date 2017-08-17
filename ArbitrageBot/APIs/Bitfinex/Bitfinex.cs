@@ -44,8 +44,6 @@ namespace ArbitrageBot.APIs.Bitfinex
             public const string FUNDING = "funding";
         }
 
-
-
         public static Order Buy(string currency, double quantity, double price)
         {
             string market = "btc" + currency.ToLower();
