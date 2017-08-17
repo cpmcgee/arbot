@@ -29,9 +29,8 @@ To use authenticated methods you will need to set up your config file and key fi
 
 
 Currently Working On:
-  - Finishing implemenation and debugging of of all Bittrex, Bitfiniex, and Poloniex endpoints
-  - Finish creating configuration provider
-  - Add more exchanges
-  - Implement Order object which handles open and historical orders
-  - Test trading methods with small amounts of currency
+  - Implement unit test for exchange classes
+  - Fix logging system
+  - Test buy/sell/cancel/etc with money
+  - Add kraken.io exchange
  
