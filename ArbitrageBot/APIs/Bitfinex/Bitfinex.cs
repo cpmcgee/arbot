@@ -44,7 +44,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             public const string FUNDING = "funding";
         }
 
-        
+
 
         public static Order Buy(string currency, double quantity, double price)
         {
@@ -64,7 +64,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         public static Order Sell(string currency, double quantity, double price)
         {
             string market = "btc" + currency.ToLower();
-            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit"); 
+            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "sell", "limit");
             if (data.success = false)
                 return null;
             else
@@ -85,4 +85,5 @@ namespace ArbitrageBot.APIs.Bitfinex
         {
             return CurrencyManager.GetCurrency(symbol).BitfinexBalance;
         }
+    }
 }
