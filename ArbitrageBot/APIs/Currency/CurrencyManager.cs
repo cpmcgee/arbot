@@ -63,7 +63,7 @@ namespace ArbitrageBot.CurrencyUtil
         #region Price Updates
 
 
-        public static void UpdatePrices()
+        private static void UpdatePrices()
         {
             Task.WhenAll(
                     Task.Run(() => UpdateBittrexPrices()),
@@ -183,7 +183,7 @@ namespace ArbitrageBot.CurrencyUtil
             }
         }
 
-        public static void UpdatePoloniexPrices()
+        private static void UpdatePoloniexPrices()
         {
             var data = new PoloniexRequest().Public().ReturnTicker();
             foreach (var obj in data)
@@ -209,11 +209,13 @@ namespace ArbitrageBot.CurrencyUtil
             run = true;
             while (run)
             {
-                UpdatePrices();
+                Task.WhenAll(
+                    Task.Run(() => UpdatePrices()),
+                    Task.Run(() => UpdateBalances())).Wait();
             }
         }
 
-        public static void StopAsyncPriceUpdates()
+        public static void StopAsyncUpdates()
         {
             run = false;
         }
@@ -222,7 +224,34 @@ namespace ArbitrageBot.CurrencyUtil
 
         #region Balance Updates
 
-        //update balances here
+        public static void UpdateBittrexBalances()
+        {
+            var data = new BittrexRequest().Account().GetBalances().result;
+            foreach (var obj in data)
+            {
+                Currencies[obj.Currency].BittrexBalance = Convert.ToDouble(obj.Available);
+            }
+        }
+
+        public static void UpdatePoloniexBalances()
+        {
+            var data = new PoloniexRequest().Trading().ReturnBalances();
+            foreach (var obj in data)
+            {
+                Currencies[obj.Name.ToString()].PoloniexBalance = Convert.ToDouble(obj.Value);
+            }
+        }
+
+
+
+
+        private static void UpdateBalances()
+        {
+            Task.WhenAll(
+                    Task.Run(() => UpdateBittrexBalances()),
+                    Task.Run(() => UpdateBitfinexBalances()),
+                    Task.Run(() => UpdatePoloniexBalances())).Wait();
+        }
 
         public static void UpdateBitfinexBalances()
         {

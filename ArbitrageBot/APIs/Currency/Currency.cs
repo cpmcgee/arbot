@@ -18,25 +18,25 @@ namespace ArbitrageBot.CurrencyUtil
 
         public string Symbol { get; set; }
 
-        public string BittrexName { get; set; }
+        public string BittrexName { get; internal set; }
 
-        public string BitfinexName { get; set; }
+        public string BitfinexName { get; internal set; }
 
-        public string PoloniexName { get; set; }
-
-
-        public string BittrexVolume { get; set; }
-
-        public string BitfinexVolume { get; set; }
-
-        public string PoloniexVolume { get; set; }
+        public string PoloniexName { get; internal set; }
 
 
-        public string BittrexBtcPair { get; set; }
+        public string BittrexVolume { get; internal set; }
 
-        public string BitfinexBtcPair { get; set; }
+        public string BitfinexVolume { get; internal set; }
 
-        public string PoloniexBtcPair { get; set; }
+        public string PoloniexVolume { get; internal set; }
+
+
+        public string BittrexBtcPair { get; internal set; }
+
+        public string BitfinexBtcPair { get; internal set; }
+
+        public string PoloniexBtcPair { get; internal set; }
 
 
         public double BittrexBalance { get; }

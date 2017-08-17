@@ -56,20 +56,9 @@ namespace ArbitrageBot.APIs.Bittrex
             return order.Cancel();
         }
 
-        public static void CheckOrders()
+        public static double GetBalance(string symbol)
         {
-            var data = new BittrexRequest().Market().GetOpenOrders().result;
-            List<Order> openOrders = new List<Order>();
-            foreach (var obj in data)
-            {
-                openOrders.Add(OrderManager.GetOrder(obj.Uuid));
-            }
-            foreach (Order order in Orders)
-            {
-                if (!openOrders.Contains(order))
-                    if (order.IsOpen)
-                        order.Fulfill();
-            }
+            return CurrencyManager.GetCurrency(symbol).BittrexBalance;
         }
     }
 }
