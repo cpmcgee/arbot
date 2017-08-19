@@ -12,13 +12,26 @@ namespace ArbitrageBot.APIs
         private static ConcurrentDictionary<string, Order> Orders = new ConcurrentDictionary<string, Order>();
 
         //Lists that contain the orders held by each exchange
-        public static List<Order> BittrexOrders = new List<Order>();
-        public static List<Order> BitfinexOrders = new List<Order>();
-        public static List<Order> PoloniexOrders = new List<Order>();
+        internal static List<Order> BittrexOrders { get; private set; } = new List<Order>();
+        internal static List<Order> BitfinexOrders { get; private set; } = new List<Order>();
+        internal static List<Order> PoloniexOrders { get; private set; } = new List<Order>();
 
-        public static bool AddOrder(Order order)
+        internal static void AddOrder(BittrexOrder order)
         {
-            return Orders.TryAdd(order.Id, order);
+            Orders.TryAdd(order.Id, order);
+            BittrexOrders.Add(order);
+        }
+
+        internal static void AddOrder(BitfinexOrder order)
+        {
+            Orders.TryAdd(order.Id, order);
+            BitfinexOrders.Add(order);
+        }
+        
+        internal static void AddOrder(PoloniexOrder order)
+        {
+            Orders.TryAdd(order.Id, order);
+            PoloniexOrders.Add(order);
         }
 
         /// <summary>
@@ -27,40 +40,44 @@ namespace ArbitrageBot.APIs
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public static Order GetOrder(string orderId)
+        internal static Order GetOrder(string orderId)
         {
             Order order = null;
             Orders.TryGetValue(orderId, out order);
             return order;
         }
 
-        public static bool HasOrder(string orderId)
+        internal static bool HasOrder(string orderId)
         {
             return Orders.ContainsKey(orderId);
         }
 
-        public static ConcurrentDictionary<string, Order> GetOrders()
+        internal static ConcurrentDictionary<string, Order> GetOrders()
         {
             return Orders;
         }
 
         static bool run = false;
-
-        private static void StartAsyncOrderChecking()
+        internal static void StopAsyncOrderChecking() { run = false; }
+        internal static void StartAsyncOrderChecking()
         {
             run = true;
+            Task.Run(() => CheckOrdersLoop());
+        }
+        private static void CheckOrdersLoop()
+        {
             while (run)
             {
-                Task.WhenAll(
-                    Task.Run(() => CheckBittrexOrders()),
-                    Task.Run(() => CheckBitfinexOrders()),
-                    Task.Run(() => CheckPoloniexOrders())).Wait();
+                CheckOrders();
             }
         }
 
-        public static void StopAsyncOrderChecking()
+        internal static void CheckOrders()
         {
-            run = false;
+            Task.WhenAll(
+                        Task.Run(() => CheckBittrexOrders()),
+                        Task.Run(() => CheckBitfinexOrders()),
+                        Task.Run(() => CheckPoloniexOrders())).Wait();
         }
 
         private static void CheckBitfinexOrders()

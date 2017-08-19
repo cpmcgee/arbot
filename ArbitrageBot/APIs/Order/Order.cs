@@ -44,7 +44,9 @@ namespace ArbitrageBot.APIs
         {
             if (obj is Order)
             {
-                if (((Order)obj).Id == this.Id)
+                if (((Order)obj).Id == this.Id &&
+                    ((Order)obj).Amount == this.Amount &&
+                    ((Order)obj).Currency == this.Currency)
                     return true;
             }
             return false;

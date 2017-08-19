@@ -69,7 +69,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Strategies\IStrategy.cs" />
     <Compile Include="Strategies\PriceCompare.cs" />
-    <Compile Include="UnitTests\ApiUnitTests.cs" />
+    <Compile Include="UnitTests\PoloniexApiCallTests.cs" />
+    <Compile Include="UnitTests\BitfinexApiCallTests.cs" />
+    <Compile Include="UnitTests\BittrexApiCallTests.cs" />
+    <Compile Include="UnitTests\OrderManagerTests.cs" />
+    <Compile Include="UnitTests\TestBase.cs" />
     <Compile Include="Util\Config.cs" />
     <Compile Include="Util\Logger.cs" />
   </ItemGroup>

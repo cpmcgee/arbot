@@ -19,11 +19,11 @@ namespace ArbitrageBot.CurrencyUtil
         private static ConcurrentDictionary<string, Currency> Currencies { get; set; } = null;
 
         //Lists that contain the currencies held by each exchange
-        public static List<Currency> BittrexCurrencies { get; private set; }
-        public static List<Currency> BitfinexCurrencies { get; private set; }
-        public static List<Currency> PoloniexCurrencies { get; private set; }
+        internal static List<Currency> BittrexCurrencies { get; private set; }
+        internal static List<Currency> BitfinexCurrencies { get; private set; }
+        internal static List<Currency> PoloniexCurrencies { get; private set; }
 
-        public static bool AddCurrency(string symbol, Currency currency)
+        internal static bool AddCurrency(string symbol, Currency currency)
         {
             return Currencies.TryAdd(symbol, currency);
         }
@@ -34,34 +34,42 @@ namespace ArbitrageBot.CurrencyUtil
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public static Currency GetCurrency(string symbol)
+        internal static Currency GetCurrency(string symbol)
         {
             Currency currency = null;
             Currencies.TryGetValue(symbol, out currency);
             return currency;
         }
 
-        public static bool HasCurrency(string symbol)
+        internal static bool HasCurrency(string symbol)
         {
             return Currencies.ContainsKey(symbol);
         }
 
-        public static ConcurrentDictionary<string, Currency> GetCurrencies()
+        internal static ConcurrentDictionary<string, Currency> GetCurrencies()
         {
             return Currencies;
         }
 
         static bool run = false;
-        public static void StopAsyncUpdates() { run = false; }
-        public static void StartAsyncUpdates()
+        internal static void StopAsyncUpdates() { run = false; }
+        internal static void StartAsyncUpdates()
         {
             run = true;
+            Task.Run(() => UpdatePricesBalancesLoop());
+        }
+        private static void UpdatePricesBalancesLoop()
+        {
             while (run)
             {
-                Task.WhenAll(
+                UpdatePricesBalances();
+            }
+        }
+        internal static void UpdatePricesBalances()
+        {
+            Task.WhenAll(
                     Task.Run(() => UpdatePrices()),
                     Task.Run(() => UpdateBalances())).Wait();
-            }
         }
 
         /// <summary>
@@ -69,7 +77,7 @@ namespace ArbitrageBot.CurrencyUtil
         /// </summary>
         #region Loading Coins
 
-        public static void LoadCoins()
+        internal static void LoadCoins()
         {
             if (Currencies == null)
                 Task.WhenAll(
@@ -166,7 +174,7 @@ namespace ArbitrageBot.CurrencyUtil
                     Task.Run(() => UpdatePoloniexPrices())).Wait();
         }
         
-        public static void UpdateBittrexPrices()
+        internal static void UpdateBittrexPrices()
         {
             var markets = new BittrexRequest().Public().GetMarketSummaries().result;
             foreach (var obj in markets)
@@ -188,7 +196,7 @@ namespace ArbitrageBot.CurrencyUtil
             }
         }
         
-        public static void UpdateBitfinexPrices()
+        internal static void UpdateBitfinexPrices()
         {
             foreach (Currency coin in BitfinexCurrencies)
             {
@@ -234,7 +242,7 @@ namespace ArbitrageBot.CurrencyUtil
                     Task.Run(() => UpdatePoloniexBalances())).Wait();
         }
 
-        public static void UpdateBittrexBalances()
+        internal static void UpdateBittrexBalances()
         {
             var data = new BittrexRequest().Account().GetBalances().result;
             foreach (var obj in data)
@@ -243,7 +251,7 @@ namespace ArbitrageBot.CurrencyUtil
             }
         }
 
-        public static void UpdatePoloniexBalances()
+        internal static void UpdatePoloniexBalances()
         {
             var data = new PoloniexRequest().Trading().ReturnBalances();
             foreach (var obj in data)
@@ -252,7 +260,7 @@ namespace ArbitrageBot.CurrencyUtil
             }
         }
         
-        public static void UpdateBitfinexBalances()
+        internal static void UpdateBitfinexBalances()
         {
             var data = new BitfinexRequest().WalletBalances();
             foreach (var obj in data)

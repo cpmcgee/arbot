@@ -32,6 +32,7 @@ namespace ArbitrageBot.APIs.Bittrex
             {
                 BittrexOrder newOrder = new BittrexOrder(data.result.uuid, currency, OrderType.BUY, quantity);
                 OrderManager.AddOrder(newOrder);
+                Orders.Add(newOrder);
                 return newOrder;
             }
         }

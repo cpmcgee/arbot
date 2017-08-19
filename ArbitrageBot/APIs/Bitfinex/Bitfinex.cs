@@ -46,16 +46,18 @@ namespace ArbitrageBot.APIs.Bitfinex
 
         public static Order Buy(string currency, double quantity, double price)
         {
-            string market = "btc" + currency.ToLower();
-            var data = new BitfinexRequest().NewOrder(currency, quantity, price, "buy", "limit");
-            if (data.success = false)
-                return null;
-            else
+            try
             {
+                string market = "btc" + currency.ToLower();
+                var data = new BitfinexRequest().NewOrder(currency, quantity, price, "buy", "limit");
                 BitfinexOrder newOrder = new BitfinexOrder(data.result.uuid, currency, OrderType.BUY, Convert.ToDouble(quantity));
                 OrderManager.AddOrder(newOrder);
                 Orders.Add(newOrder);
                 return newOrder;
+            }
+            catch
+            {
+                return null;
             }
         }
 
