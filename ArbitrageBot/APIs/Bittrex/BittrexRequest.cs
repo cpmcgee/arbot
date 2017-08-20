@@ -74,6 +74,7 @@ namespace ArbitrageBot.APIs.Bittrex
                 Url += "&nonce=" + Nonce;
             }
             var request = ((HttpWebRequest)WebRequest.Create(Url));
+            request.Timeout = TIMEOUT_MILLISECONDS;
             if (authenticated)
             {
                 request.Headers.Add("apisign", GenerateSignature(Url));
@@ -87,7 +88,7 @@ namespace ArbitrageBot.APIs.Bittrex
                 {
                     return data;
                 }
-                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message);
+                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message, 2);
                 return null;
             }
             catch (WebException wex)

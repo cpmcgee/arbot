@@ -74,7 +74,7 @@ namespace ArbitrageBot.APIs.Poloniex
         protected override dynamic PostData(object payload)
         {
             var request = CreateRequest(payload);
-
+            request.Timeout = TIMEOUT_MILLISECONDS;
             try
             {
                 WebResponse response = request.GetResponse();
@@ -98,16 +98,15 @@ namespace ArbitrageBot.APIs.Poloniex
         {
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
+                var request = ((HttpWebRequest)WebRequest.Create(Url));
+                request.Timeout = TIMEOUT_MILLISECONDS;
+                WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)
             {
-                string error = new StreamReader(
-                                    ((HttpWebResponse)wex.Response)
-                                    .GetResponseStream())
-                                    .ReadToEnd();
+                string error = (wex.Message.ToString());
                 throw new WebException("Failed api call: " + Url + "\n" + error);
                 //Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
                 //return null;

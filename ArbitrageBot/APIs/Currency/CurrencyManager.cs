@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using ArbitrageBot.APIs.Bitfinex;
 using ArbitrageBot.APIs.Bittrex;
 using ArbitrageBot.APIs.Poloniex;
-using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ArbitrageBot.CurrencyUtil
@@ -16,12 +16,12 @@ namespace ArbitrageBot.CurrencyUtil
     static class CurrencyManager
     {
         //dictionary that contains references to all currencies had by all exchanges by their capitalized symbol
-        private static ConcurrentDictionary<string, Currency> Currencies { get; set; } = null;
+        private static ConcurrentDictionary<string, Currency> Currencies { get; set; } = new ConcurrentDictionary<string, Currency>();
 
         //Lists that contain the currencies held by each exchange
-        internal static List<Currency> BittrexCurrencies { get; private set; }
-        internal static List<Currency> BitfinexCurrencies { get; private set; }
-        internal static List<Currency> PoloniexCurrencies { get; private set; }
+        internal static List<Currency> BittrexCurrencies { get; private set; } = new List <Currency>();
+        internal static List<Currency> BitfinexCurrencies { get; private set; } = new List<Currency>();
+        internal static List<Currency> PoloniexCurrencies { get; private set; } = new List<Currency>();
 
         internal static bool AddCurrency(string symbol, Currency currency)
         {
@@ -53,23 +53,24 @@ namespace ArbitrageBot.CurrencyUtil
 
         static bool run = false;
         internal static void StopAsyncUpdates() { run = false; }
-        internal static void StartAsyncUpdates()
+        internal static void StartAsyncUpdates(int updateInterval)
         {
             run = true;
-            Task.Run(() => UpdatePricesBalancesLoop());
+            Task.Run(() => UpdatePricesBalancesLoop(updateInterval));
         }
-        private static void UpdatePricesBalancesLoop()
+        private static void UpdatePricesBalancesLoop(int updateInterval)
         {
             while (run)
             {
                 UpdatePricesBalances();
+                Thread.Sleep(updateInterval);
             }
         }
         internal static void UpdatePricesBalances()
         {
             Task.WhenAll(
-                    Task.Run(() => UpdatePrices()),
-                    Task.Run(() => UpdateBalances())).Wait();
+                Task.Run(() => UpdatePrices()),
+                Task.Run(() => UpdateBalances())).Wait();
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace ArbitrageBot.CurrencyUtil
 
         internal static void LoadCoins()
         {
-            if (Currencies == null)
+            if (Currencies.Count == 0)
                 Task.WhenAll(
                     Task.Run(() => GetBittrexCoins()),
                     Task.Run(() => GetBitfinexCoins()),
@@ -96,6 +97,8 @@ namespace ArbitrageBot.CurrencyUtil
                 string symbol = (string)obj.Currency;
                 if (symbol == "BTC" || !((bool)obj.IsActive)) continue; //only add active coins traded against btc (dont add btc)
                 Currency coin = CurrencyManager.GetCurrency(symbol);
+                if (symbol == "AEON")
+                    return;
                 if (coin == null)
                 {
                     coin = new Currency(symbol);
@@ -176,57 +179,87 @@ namespace ArbitrageBot.CurrencyUtil
         
         internal static void UpdateBittrexPrices()
         {
-            var markets = new BittrexRequest().Public().GetMarketSummaries().result;
-            foreach (var obj in markets)
+            try
             {
-                string[] pair = ((string)obj.MarketName).Split('-');
-                string baseCurrency = pair[0];
-                string symbol = pair[1];
-                if (baseCurrency.Equals("BTC"))
+                var markets = new BittrexRequest().Public().GetMarketSummaries().result;
+                foreach (var obj in markets)
                 {
-                    Currency coin = CurrencyManager.GetCurrency(symbol.ToUpper());
-                    if (coin != null)
+                    string[] pair = ((string)obj.MarketName).Split('-');
+                    string baseCurrency = pair[0];
+                    string symbol = pair[1].ToUpper();
+                    if (baseCurrency.Equals("BTC"))
                     {
-                        coin.BittrexLast = obj.Last;
-                        coin.BittrexAsk = obj.Ask;
-                        coin.BittrexBid = obj.Bid;
-                        coin.BittrexVolume = obj.Volume;
+                        try
+                        {
+                            Currency coin = CurrencyManager.GetCurrency(symbol);
+                            coin.BittrexLast = obj.Last;
+                            coin.BittrexAsk = obj.Ask;
+                            coin.BittrexBid = obj.Bid;
+                            coin.BittrexVolume = obj.Volume;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.ERROR("  currency " + symbol + " was not loaded in bittrex", 4);
+                        }
                     }
                 }
+                Logger.INFO("Succesfully updated BITTREX prices", 3);
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Failed up update bittrex prices", 3);
             }
         }
         
         internal static void UpdateBitfinexPrices()
         {
-            foreach (Currency coin in BitfinexCurrencies)
+            try
             {
-                var obj = new BitfinexRequest().GetTicker(coin.BitfinexBtcPair);
-                coin.BitfinexAsk = obj.ask;
-                coin.BitfinexBid = obj.bid;
-                coin.BitfinexLast = obj.last_price;
-                coin.BitfinexVolume = obj.volume;
+                Parallel.ForEach(BitfinexCurrencies, coin =>
+                {
+                    var obj = new BitfinexRequest().GetTicker(coin.BitfinexBtcPair);
+                    coin.BitfinexAsk = obj.ask;
+                    coin.BitfinexBid = obj.bid;
+                    coin.BitfinexLast = obj.last_price;
+                    coin.BitfinexVolume = obj.volume;
+                });
+                Logger.INFO("Succesfully updated BITFINEX prices", 3);
+            }
+            catch(Exception ex)
+            {
+                Logger.ERROR("Failed up update bitfinex prices", 3);
             }
         }
         
         private static void UpdatePoloniexPrices()
         {
-            var data = new PoloniexRequest().Public().ReturnTicker();
-            foreach (var obj in data)
+            try
             {
-                string[] pair = ((string)obj.Name).Split('_');
-                string baseCurrency = pair[0];
-                string symbol = pair[1].ToUpper();
-                if (baseCurrency == "BTC")
+                var data = new PoloniexRequest().Public().ReturnTicker();
+                foreach (var obj in data)
                 {
-                    Currency coin = CurrencyManager.GetCurrency(symbol);
-                    coin.PoloniexBid = obj.Value.highestBid;
-                    coin.PoloniexAsk = obj.Value.lowestAsk;
-                    coin.PoloniexLast = obj.Value.last;
-                    coin.PoloniexVolume = obj.Value.quoteVolum;
+                    string[] pair = ((string)obj.Name).Split('_');
+                    string baseCurrency = pair[0];
+                    string symbol = pair[1].ToUpper();
+                    if (baseCurrency == "BTC")
+                    {
+                        Currency coin = CurrencyManager.GetCurrency(symbol);
+
+                        coin.PoloniexBid = obj.Value.highestBid;
+                        coin.PoloniexAsk = obj.Value.lowestAsk;
+                        coin.PoloniexLast = obj.Value.last;
+                        coin.PoloniexVolume = obj.Value.quoteVolume;
+                    }
                 }
+                Logger.INFO("Succesfully updated POLONIEX prices", 3);
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Failed up update poloniex prices", 3);
             }
         }
 
+        
         #endregion
 
         /// <summary>
@@ -244,28 +277,61 @@ namespace ArbitrageBot.CurrencyUtil
 
         internal static void UpdateBittrexBalances()
         {
-            var data = new BittrexRequest().Account().GetBalances().result;
-            foreach (var obj in data)
+            try
             {
-                Currencies[obj.Currency].BittrexBalance = Convert.ToDouble(obj.Available);
+                var data = new BittrexRequest().Account().GetBalances().result;
+                foreach (var obj in data)
+                {
+                    Currency currency = null;
+                    Currencies.TryGetValue(obj.Currency.ToString(), out currency);
+                    if (currency != null)
+                        currency.BittrexBalance = Convert.ToDouble(obj.Available);
+                }
+                Logger.INFO("Succesfully updated BITTREX balances", 3);
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Failed to update poloniex balances", 3);
             }
         }
 
         internal static void UpdatePoloniexBalances()
         {
-            var data = new PoloniexRequest().Trading().ReturnBalances();
-            foreach (var obj in data)
+            try
             {
-                Currencies[obj.Name.ToString()].PoloniexBalance = Convert.ToDouble(obj.Value);
+                var data = new PoloniexRequest().Trading().ReturnBalances();
+                foreach (var obj in data)
+                {
+                    Currency currency = null;
+                    Currencies.TryGetValue(obj.Name.ToString(), out currency);
+                    if (currency != null)
+                        currency.PoloniexBalance = Convert.ToDouble(obj.Value);
+                }
+                Logger.INFO("Succesfully updated POLONIEX balances", 3);
+            }
+            catch(Exception ex)
+            {
+                Logger.ERROR("Failed to update poloniex balances", 3);
             }
         }
         
         internal static void UpdateBitfinexBalances()
         {
-            var data = new BitfinexRequest().WalletBalances();
-            foreach (var obj in data)
+            try
             {
-                Currencies[obj.currency] += Convert.ToDouble(obj.available);
+                var data = new BitfinexRequest().WalletBalances();
+                foreach (var obj in data)
+                {
+                    Currency currency = null;
+                    Currencies.TryGetValue(obj.currency.ToString(), out currency);
+                    if (currency != null)
+                        currency.BitfinexBalance += Convert.ToDouble(obj.available);
+                }
+                Logger.INFO("Succesfully updated BITFINEX balances", 3);
+            }
+            catch (Exception ex)
+            {
+                Logger.ERROR("Failed to update bitfinex balances", 3);
             }
         }
 

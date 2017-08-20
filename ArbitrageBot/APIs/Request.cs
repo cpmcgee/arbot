@@ -9,6 +9,8 @@ namespace ArbitrageBot.APIs
         /// </summary>
         internal string Url { get; set; }
 
+        protected const int TIMEOUT_MILLISECONDS = 5000;
+
         /// <summary>
         /// gets the current time in millis to include with authenticated api calls
         /// this nonce generator is tested to work with bittrex and bitfinex 7/26/2017

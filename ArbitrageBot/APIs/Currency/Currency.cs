@@ -39,14 +39,14 @@ namespace ArbitrageBot.CurrencyUtil
         public string PoloniexBtcPair { get; internal set; }
 
 
-        public double BittrexBalance { get; }
+        public double BittrexBalance { get; internal set; }
 
-        public double BitfinexBalance { get; }
+        public double BitfinexBalance { get; internal set; }
 
-        public double PoloniexBalance { get; }
+        public double PoloniexBalance { get; internal set; }
 
 
-        public double ?BittrexBid { get; internal set; }
+        public double ?BittrexBid { get; set; }
 
         public double ?BittrexAsk { get; set; }
 

@@ -18,9 +18,9 @@ namespace ArbitrageBot.Strategies
     {
         public void Run()
         {
-            CurrencyManager.StartAsyncUpdates(); //Asynchronously build exchange objects
+            //Asynchronously build exchange objects
 
-            Logger.INFO("Press Enter For Price Differences: ");
+            Logger.INFO("Press Enter For Price Differences: ", 1);
             while (true)
             {
                 double? maxDiff = 0;

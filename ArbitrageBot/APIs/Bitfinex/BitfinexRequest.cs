@@ -569,14 +569,16 @@ namespace ArbitrageBot.APIs.Bitfinex
         {
             try
             {
-                WebResponse response = ((HttpWebRequest)WebRequest.Create(Url)).GetResponse();
+                var request = ((HttpWebRequest)WebRequest.Create(Url));
+                request.Timeout = TIMEOUT_MILLISECONDS;
+                WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)
             {
                 StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd());
+                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd(), 2);
                 return null;
             }
         }
@@ -603,7 +605,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         protected override dynamic PostData(object payload)
         {
             var request = CreateRequest(payload);
-
+            request.Timeout = TIMEOUT_MILLISECONDS;
             try
             {
                 payload = JsonConvert.SerializeObject(payload) as string;
