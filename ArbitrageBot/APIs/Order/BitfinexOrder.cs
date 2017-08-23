@@ -18,7 +18,9 @@ namespace ArbitrageBot.APIs
                 return false;
             else
             {
-                OrderManager.GetOrder(Id).Cancel();
+                this.IsCancelled = true;
+                this.IsOpen = false;
+                this.TimeCancelled = DateTime.Now;
                 return true;
             }
         }

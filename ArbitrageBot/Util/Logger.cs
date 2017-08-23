@@ -10,9 +10,22 @@ namespace ArbitrageBot.Util
     public static class Logger
     {
         public static StreamWriter sw;
-
+        private static AbstractLogger logger;
         public static int ct = 0;
         private static int level;
+
+        [Flags]
+        public enum LogLevel
+        {
+            None = 0,                 //        0
+            Info = 1,                 //        1
+            Debug = 2,                //       10
+            Warning = 4,              //      100
+            Error = 8,                //     1000
+            FunctionalMessage = 16,   //    10000
+            FunctionalError = 32,     //   100000
+            All = 63                  //   111111
+        }
 
         /// <summary>
         /// logger levels:
@@ -31,38 +44,79 @@ namespace ArbitrageBot.Util
             }
             fileName = path + fileName;
             sw = new StreamWriter(fileName);
+            FileLogger logger = new FileLogger(LogLevel.All);
+            ConsoleLogger logger1 = logger.SetNext(new ConsoleLogger(LogLevel.Debug)) as ConsoleLogger;
         }
         
-        public static void INFO(string msg, int lvl)
+
+        public abstract class AbstractLogger
         {
-            if (lvl <= level)
+            protected LogLevel logMask;
+
+            // The next Handler in the chain
+            protected AbstractLogger next;
+
+            public AbstractLogger(LogLevel mask)
             {
-                msg = "[INFO] " + msg;
-                sw.WriteLine(msg);
+                this.logMask = mask;
+            }
+
+            /// <summary>
+            /// Sets the Next logger to make a list/chain of Handlers.
+            /// </summary>
+            public AbstractLogger SetNext(AbstractLogger nextlogger)
+            {
+                next = nextlogger;
+                return nextlogger;
+            }
+
+            public void Message(string msg, LogLevel severity)
+            {
+                if ((severity & logMask) != 0) //True only if all logMask bits are set in severity
+                {
+                    WriteMessage(msg);
+                }
+                if (next != null)
+                {
+                    next.Message(msg, severity);
+                }
+            }
+
+            abstract protected void WriteMessage(string msg);
+        }
+
+        public class ConsoleLogger : AbstractLogger
+        {
+            public ConsoleLogger(LogLevel mask)
+                : base(mask)
+            { }
+
+            protected override void WriteMessage(string msg)
+            {
                 Console.WriteLine(msg);
             }
         }
 
-        public static void ERROR(string msg, int lvl)
+        class FileLogger : AbstractLogger
         {
-            if (lvl <= level)
+            public FileLogger(LogLevel mask)
+                : base(mask)
+            { }
+
+            protected override void WriteMessage(string msg)
             {
-                msg = "[ERROR] " + msg;
                 sw.WriteLine(msg);
-                Console.WriteLine(msg);
             }
         }
 
-        public static void WRITE(string msg)
+        public static void WRITE(string msg, LogLevel severity)
         {
-            sw.WriteLine(msg);
-            Console.WriteLine(msg);
+            logger.Message(msg, severity);
         }
 
         public static void BREAK()
         {
-            sw.WriteLine("\n");
-            Console.WriteLine("\n");
+            logger.Message("\n", LogLevel.All);
         }
 
         public static void Close()

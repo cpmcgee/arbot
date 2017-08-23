@@ -16,12 +16,13 @@ namespace ArbitrageBot.APIs
         public string Currency { get; }
         public DateTime TimePlaced { get; }
         public DateTime TimeFulfilled { get; protected set; }
+        public DateTime TimeCancelled { get; protected set; }
         public string Type { get; set; }
         public double Amount { get; set; }
-        public bool IsOpen { get; private set; }
+        public bool IsOpen { get; protected set; }
         public bool IsCancelled { get; protected set; }
 
-        public Order(string id, string currency, string type, double amt)
+        internal Order(string id, string currency, string type, double amt)
         {
             this.Id = id;
             this.Currency = currency;
@@ -34,7 +35,7 @@ namespace ArbitrageBot.APIs
 
         public abstract bool Cancel();
 
-        public virtual void Fulfill()
+        internal virtual void Fulfill()
         {
             this.TimeFulfilled = DateTime.Now;
             this.IsOpen = false;
@@ -62,5 +63,11 @@ namespace ArbitrageBot.APIs
                 return hash;
             }
         }
+    }
+
+    public abstract class OrderType
+    {
+        public static string BUY { get { return "BUY"; } }
+        public static string SELL { get { return "SELL"; } }
     }
 }

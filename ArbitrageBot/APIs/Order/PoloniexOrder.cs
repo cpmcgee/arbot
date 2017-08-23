@@ -9,15 +9,13 @@ namespace ArbitrageBot.APIs
 
         public override bool Cancel()
         {
-            try
+            var data = new PoloniexRequest().Trading().CancelOrder(Convert.ToInt32(Id));
+            if (data.success == 1)
             {
-                var data = new PoloniexRequest().Trading().CancelOrder(Convert.ToInt32(Id));
-                if (data.success == 1)
-                    return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
+                this.IsCancelled = true;
+                this.IsOpen = false;
+                this.TimeCancelled = DateTime.Now;
+                return true;
             }
             return false;
         }

@@ -53,6 +53,10 @@ namespace ArbitrageBot.CurrencyUtil
 
         static bool run = false;
         internal static void StopAsyncUpdates() { run = false; }
+        /// <summary>
+        /// Start Asynchronous price and balance updates
+        /// </summary>
+        /// <param name="updateInterval">milliseconds between each full update (updates can take sometimes take up to 20 seconds)</param>
         internal static void StartAsyncUpdates(int updateInterval)
         {
             run = true;
@@ -74,7 +78,7 @@ namespace ArbitrageBot.CurrencyUtil
         }
 
         /// <summary>
-        /// reloding all coins from the api
+        /// reloding all coins from the apis
         /// </summary>
         #region Loading Coins
 
@@ -215,6 +219,7 @@ namespace ArbitrageBot.CurrencyUtil
         {
             try
             {
+                //unfortunately bitfinex makes you call the api for each ticker, so we do it in parallel to save time
                 Parallel.ForEach(BitfinexCurrencies, coin =>
                 {
                     var obj = new BitfinexRequest().GetTicker(coin.BitfinexBtcPair);

@@ -46,11 +46,11 @@ namespace ArbitrageBot.CurrencyUtil
         public double PoloniexBalance { get; internal set; }
 
 
-        public double ?BittrexBid { get; set; }
-
-        public double ?BittrexAsk { get; set; }
-
-        public double ?BittrexLast { get; set; }
+        public double? BittrexBid { get; set; }
+                       
+        public double? BittrexAsk { get; set; }
+                       
+        public double? BittrexLast { get; set; }
 
         public double? BitfinexBid { get; set; }
 
@@ -65,7 +65,6 @@ namespace ArbitrageBot.CurrencyUtil
         public double? PoloniexLast { get; set; }
 
 
-
         public override bool Equals(object obj)
         {
             if (!(obj is Currency))
@@ -73,6 +72,7 @@ namespace ArbitrageBot.CurrencyUtil
             else
                 return ((Currency)obj).Symbol.ToUpper() == Symbol.ToUpper();
         }
+
 
         public override int GetHashCode()
         {
