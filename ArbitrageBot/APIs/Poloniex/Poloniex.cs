@@ -18,7 +18,7 @@ namespace ArbitrageBot.APIs.Poloniex
         {
             get
             {
-                return OrderManager.BittrexOrders;
+                return OrderManager.PoloniexOrders;
             }
         }
 
