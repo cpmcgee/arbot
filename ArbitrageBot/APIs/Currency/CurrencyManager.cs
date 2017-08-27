@@ -60,6 +60,7 @@ namespace ArbitrageBot.CurrencyUtil
         internal static void StartAsyncUpdates(int updateInterval)
         {
             run = true;
+            Logger.WRITE("Starting concurrent price and balance updates...", LogLevel.Info);
             Task.Run(() => UpdatePricesBalancesLoop(updateInterval));
         }
         private static void UpdatePricesBalancesLoop(int updateInterval)
@@ -72,6 +73,7 @@ namespace ArbitrageBot.CurrencyUtil
         }
         internal static void UpdatePricesBalances()
         {
+            Logger.WRITE("Updating prices and balances", LogLevel.Info);
             Task.WhenAll(
                 Task.Run(() => UpdatePrices()),
                 Task.Run(() => UpdateBalances())).Wait();
@@ -85,10 +87,13 @@ namespace ArbitrageBot.CurrencyUtil
         internal static void LoadCoins()
         {
             if (Currencies.Count == 0)
+            {
+                Logger.WRITE("Loading coins available for trading", LogLevel.Info);
                 Task.WhenAll(
                     Task.Run(() => GetBittrexCoins()),
                     Task.Run(() => GetBitfinexCoins()),
                     Task.Run(() => GetPoloniexCoins())).Wait();
+            }
         }
 
         private static void GetBittrexCoins()
@@ -112,6 +117,7 @@ namespace ArbitrageBot.CurrencyUtil
                 coin.BittrexBtcPair = ("BTC-" + symbol);
                 BittrexCurrencies.Add(coin);
             }
+            Logger.WRITE("Succesfully loaded currencies available on Bittrex.", LogLevel.Info);
         }
 
         private static void GetBitfinexCoins()
@@ -136,6 +142,7 @@ namespace ArbitrageBot.CurrencyUtil
                     BitfinexCurrencies.Add(coin);
                 }
             }
+            Logger.WRITE("Succesfully loaded currencies available on Bitfinex.", LogLevel.Info);
         }
 
         private static void GetPoloniexCoins()
@@ -163,6 +170,7 @@ namespace ArbitrageBot.CurrencyUtil
                     PoloniexCurrencies.Add(coin);
                 }
             }
+            Logger.WRITE("Succesfully loaded currencies available on Poloniex.", LogLevel.Info);
         }
 
         #endregion
@@ -203,15 +211,15 @@ namespace ArbitrageBot.CurrencyUtil
                         }
                         catch (Exception ex)
                         {
-                            Logger.ERROR("  currency " + symbol + " was not loaded in bittrex", 4);
+                            Logger.WRITE("  currency " + symbol + " was not loaded in bittrex", LogLevel.FunctionalError);
                         }
                     }
                 }
-                Logger.INFO("Succesfully updated BITTREX prices", 3);
+                Logger.WRITE("Succesfully updated BITTREX prices", LogLevel.Info);
             }
             catch (Exception ex)
             {
-                Logger.ERROR("Failed up update bittrex prices", 3);
+                Logger.WRITE("Failed up update bittrex prices", LogLevel.Error);
             }
         }
         
@@ -228,11 +236,11 @@ namespace ArbitrageBot.CurrencyUtil
                     coin.BitfinexLast = obj.last_price;
                     coin.BitfinexVolume = obj.volume;
                 });
-                Logger.INFO("Succesfully updated BITFINEX prices", 3);
+                Logger.WRITE("Succesfully updated BITFINEX prices", LogLevel.Info);
             }
             catch(Exception ex)
             {
-                Logger.ERROR("Failed up update bitfinex prices", 3);
+                Logger.WRITE("Failed up update bitfinex prices", LogLevel.Error);
             }
         }
         
@@ -256,11 +264,11 @@ namespace ArbitrageBot.CurrencyUtil
                         coin.PoloniexVolume = obj.Value.quoteVolume;
                     }
                 }
-                Logger.INFO("Succesfully updated POLONIEX prices", 3);
+                Logger.WRITE("Succesfully updated POLONIEX prices", LogLevel.Info);
             }
             catch (Exception ex)
             {
-                Logger.ERROR("Failed up update poloniex prices", 3);
+                Logger.WRITE("Failed up update poloniex prices", LogLevel.Error);
             }
         }
 
@@ -292,11 +300,11 @@ namespace ArbitrageBot.CurrencyUtil
                     if (currency != null)
                         currency.BittrexBalance = Convert.ToDouble(obj.Available);
                 }
-                Logger.INFO("Succesfully updated BITTREX balances", 3);
+                Logger.WRITE("Succesfully updated BITTREX balances", LogLevel.Info);
             }
             catch (Exception ex)
             {
-                Logger.ERROR("Failed to update poloniex balances", 3);
+                Logger.WRITE("Failed to update poloniex balances", LogLevel.Error);
             }
         }
 
@@ -312,11 +320,11 @@ namespace ArbitrageBot.CurrencyUtil
                     if (currency != null)
                         currency.PoloniexBalance = Convert.ToDouble(obj.Value);
                 }
-                Logger.INFO("Succesfully updated POLONIEX balances", 3);
+                Logger.WRITE("Succesfully updated POLONIEX balances", LogLevel.Info);
             }
             catch(Exception ex)
             {
-                Logger.ERROR("Failed to update poloniex balances", 3);
+                Logger.WRITE("Failed to update poloniex balances", LogLevel.Error);
             }
         }
         
@@ -332,11 +340,11 @@ namespace ArbitrageBot.CurrencyUtil
                     if (currency != null)
                         currency.BitfinexBalance += Convert.ToDouble(obj.available);
                 }
-                Logger.INFO("Succesfully updated BITFINEX balances", 3);
+                Logger.WRITE("Succesfully updated BITFINEX balances", LogLevel.Info);
             }
             catch (Exception ex)
             {
-                Logger.ERROR("Failed to update bitfinex balances", 3);
+                Logger.WRITE("Failed to update bitfinex balances", LogLevel.Error);
             }
         }
 

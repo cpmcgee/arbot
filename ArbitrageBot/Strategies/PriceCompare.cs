@@ -20,7 +20,7 @@ namespace ArbitrageBot.Strategies
         {
             //Asynchronously build exchange objects
 
-            Logger.WRITE("Press Enter For Price Differences: ", Logger.LogLevel.All);
+            Logger.WRITE("Press Enter For Price Differences: ", LogLevel.All);
             while (true)
             {
                 double? maxDiff = 0;
@@ -46,17 +46,17 @@ namespace ArbitrageBot.Strategies
                         }
                     }
 
-                    Logger.WRITE("  Max: " + max, Logger.LogLevel.All);
-                    Logger.WRITE("  Min: " + min, Logger.LogLevel.All);
-                    Logger.WRITE("  Diff: " + diff, Logger.LogLevel.All);
+                    Logger.WRITE("  Max: " + max, LogLevel.All);
+                    Logger.WRITE("  Min: " + min, LogLevel.All);
+                    Logger.WRITE("  Diff: " + diff, LogLevel.All);
                     Logger.BREAK();
                 }
 
                 Logger.BREAK();
                 Logger.BREAK();
 
-                Logger.WRITE("Total arbitrate opportunity: " + totalDiff, Logger.LogLevel.All);
-                Logger.WRITE("Max difference: " + maxDiff + " for " + maxCurrency, Logger.LogLevel.All);
+                Logger.WRITE("Total arbitrate opportunity: " + totalDiff, LogLevel.All);
+                Logger.WRITE("Max difference: " + maxDiff + " for " + maxCurrency, LogLevel.All);
                 PrintStats(maxCurrency);
             }
         }
@@ -73,7 +73,7 @@ namespace ArbitrageBot.Strategies
 
         private void PrintStats(KeyValuePair<string, Currency> coin, out double? max, out double? min, out double? diff)
         {
-            Logger.WRITE("--Getting Prices for " + coin.Value.Symbol + "--", Logger.LogLevel.All);
+            Logger.WRITE("--Getting Prices for " + coin.Value.Symbol + "--", LogLevel.All);
             double? btxPrice = null;
             double? bfxPrice = null;
             double? plxPrice = null;
@@ -82,11 +82,11 @@ namespace ArbitrageBot.Strategies
             diff = null;
 
             btxPrice = coin.Value.BittrexLast;
-            Logger.WRITE("Bittrex: " + btxPrice, Logger.LogLevel.All);
+            Logger.WRITE("Bittrex: " + btxPrice, LogLevel.All);
             bfxPrice = coin.Value.BitfinexLast;
-            Logger.WRITE("Bitfinex: " + bfxPrice, Logger.LogLevel.All);
+            Logger.WRITE("Bitfinex: " + bfxPrice, LogLevel.All);
             plxPrice = coin.Value.PoloniexLast;
-            Logger.WRITE("Poloniex: " + plxPrice, Logger.LogLevel.All);
+            Logger.WRITE("Poloniex: " + plxPrice, LogLevel.All);
 
             max = Max(new double?[] { btxPrice, bfxPrice, plxPrice });
             min = Min(new double?[] { btxPrice, bfxPrice, plxPrice });
@@ -95,10 +95,10 @@ namespace ArbitrageBot.Strategies
         private void PrintStats(string symbol)
         {
             var coin = CurrencyManager.GetCurrency(symbol);
-            Logger.WRITE("--Getting Prices for " + coin.Symbol + "--", Logger.LogLevel.All);
-            Logger.WRITE("Bittrex: " + coin.BittrexLast, Logger.LogLevel.All);
-            Logger.WRITE("Bitfinex: " + coin.BitfinexLast, Logger.LogLevel.All);
-            Logger.WRITE("Poloniex: " + coin.PoloniexLast, Logger.LogLevel.All);
+            Logger.WRITE("--Getting Prices for " + coin.Symbol + "--", LogLevel.All);
+            Logger.WRITE("Bittrex: " + coin.BittrexLast, LogLevel.All);
+            Logger.WRITE("Bitfinex: " + coin.BitfinexLast, LogLevel.All);
+            Logger.WRITE("Poloniex: " + coin.PoloniexLast, LogLevel.All);
         }
     }
 }

@@ -88,7 +88,7 @@ namespace ArbitrageBot.APIs.Bittrex
                 {
                     return data;
                 }
-                Logger.ERROR("Unsuccessful bittrex api call: " + Url + "\n" + data.message, 2);
+                Logger.WRITE("Unsuccessful bittrex api call: " + Url + "\n" + data.message, LogLevel.Error);
                 return null;
             }
             catch (WebException wex)
@@ -98,7 +98,7 @@ namespace ArbitrageBot.APIs.Bittrex
                                      .GetResponseStream())
                                      .ReadToEnd();
                 throw new WebException("Failed api call: " + Url + "\n" + error);
-                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //Logger.WRITE("Failed to access " + Url + "\n" + error);
                 //return null;
             }
         }

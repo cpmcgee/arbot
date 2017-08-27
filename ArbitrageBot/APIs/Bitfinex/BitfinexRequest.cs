@@ -578,7 +578,7 @@ namespace ArbitrageBot.APIs.Bitfinex
             catch (WebException wex)
             {
                 StreamReader sr = new StreamReader(((HttpWebResponse)wex.Response).GetResponseStream());
-                Logger.ERROR("Failed to access " + Url + "\n" + sr.ReadToEnd(), 2);
+                Logger.WRITE("Failed to access " + Url + "\n" + sr.ReadToEnd(), LogLevel.Error);
                 return null;
             }
         }
@@ -621,7 +621,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                                     .GetResponseStream())
                                     .ReadToEnd();
                 throw new WebException("Failed api call: " + Url + "\n" + error);
-                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //Logger.WRITE("Failed to access " + Url + "\n" + error);
                 //return null;
             }
         }

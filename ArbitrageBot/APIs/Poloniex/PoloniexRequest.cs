@@ -88,7 +88,7 @@ namespace ArbitrageBot.APIs.Poloniex
                                     .GetResponseStream())
                                     .ReadToEnd();
                 throw new WebException("Failed api call: " + Url + "\n" + error);
-                //Logger.ERROR("Failed to access " + Url + "\n" + error);
+                //Logger.WRITE("Failed to access " + Url + "\n" + error);
                 //return null;
             }
         }
@@ -108,7 +108,7 @@ namespace ArbitrageBot.APIs.Poloniex
             {
                 string error = (wex.Message.ToString());
                 throw new WebException("Failed api call: " + Url + "\n" + error);
-                //Logger.ERROR("Failed to access " + Url + "\n" + ex.Message);
+                //Logger.WRITE("Failed to access " + Url + "\n" + ex.Message);
                 //return null;
             }
         }

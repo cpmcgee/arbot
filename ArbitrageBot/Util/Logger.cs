@@ -7,26 +7,26 @@ using System.IO;
 
 namespace ArbitrageBot.Util
 {
+    [Flags]
+    public enum LogLevel
+    {
+        None = 0,                 //        0
+        Info = 1,                 //        1
+        Debug = 2,                //       10
+        Warning = 4,              //      100
+        Error = 8,                //     1000
+        FunctionalMessage = 16,   //    10000
+        FunctionalError = 32,     //   100000
+        All = 63                  //   111111
+    }
+
     public static class Logger
     {
         public static StreamWriter sw;
         private static AbstractLogger logger;
         public static int ct = 0;
         private static int level;
-
-        [Flags]
-        public enum LogLevel
-        {
-            None = 0,                 //        0
-            Info = 1,                 //        1
-            Debug = 2,                //       10
-            Warning = 4,              //      100
-            Error = 8,                //     1000
-            FunctionalMessage = 16,   //    10000
-            FunctionalError = 32,     //   100000
-            All = 63                  //   111111
-        }
-
+        
         /// <summary>
         /// logger levels:
         /// 1 - least verbose
@@ -44,7 +44,7 @@ namespace ArbitrageBot.Util
             }
             fileName = path + fileName;
             sw = new StreamWriter(fileName);
-            FileLogger logger = new FileLogger(LogLevel.All);
+            logger = new FileLogger(LogLevel.All);
             ConsoleLogger logger1 = logger.SetNext(new ConsoleLogger(LogLevel.Debug)) as ConsoleLogger;
         }
         
@@ -111,6 +111,7 @@ namespace ArbitrageBot.Util
 
         public static void WRITE(string msg, LogLevel severity)
         {
+            msg = "[" + severity.ToString().ToUpper() + "] " + msg;
             logger.Message(msg, severity);
         }
 
