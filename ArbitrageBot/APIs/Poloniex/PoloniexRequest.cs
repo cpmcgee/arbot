@@ -12,13 +12,20 @@ namespace ArbitrageBot.APIs.Poloniex
 {
     public class PoloniexRequest : Request
     {
-
+        new int TIMEOUT_MILLISECONDS = 20000;
+        static BigInteger nonce = 0;
         new protected string Nonce
         {
             get
             {
-                var start = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                return new BigInteger(Math.Round(DateTime.UtcNow.Subtract(start).TotalMilliseconds * 1000, MidpointRounding.AwayFromZero)).ToString();
+                if (nonce == 0)
+                {
+                    var start = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                    nonce = new BigInteger(Math.Round(DateTime.UtcNow.Subtract(start).TotalMilliseconds * 1000, MidpointRounding.AwayFromZero));
+                    return nonce.ToString();
+                }
+                nonce = nonce + 1;
+                return nonce.ToString();
             }
         }
 
@@ -73,12 +80,14 @@ namespace ArbitrageBot.APIs.Poloniex
         /// <returns></returns>
         protected override dynamic PostData(object payload)
         {
+            Logger.WRITE(">Sending poloniex POST", LogLevel.Debug);
             var request = CreateRequest(payload);
             request.Timeout = TIMEOUT_MILLISECONDS;
             try
             {
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream()).ReadToEnd();
+                response.Close();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)
@@ -96,12 +105,15 @@ namespace ArbitrageBot.APIs.Poloniex
 
         protected override dynamic GetData()
         {
+            Logger.WRITE(">Sending poloniex GET", LogLevel.Debug);
             try
             {
                 var request = ((HttpWebRequest)WebRequest.Create(Url));
                 request.Timeout = TIMEOUT_MILLISECONDS;
+                request.Method = "GET";
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                response.Close();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)

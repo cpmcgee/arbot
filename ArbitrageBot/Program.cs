@@ -10,11 +10,11 @@ namespace ArbitrageBot
         static void Main(string[] args)
         {
             Config.ImportProperties(@"M:\Source\ArbitrageBot\config.txt");
-            Logger.Initialize(5);
+            Logger.Initialize();
             //Config.ImportProperties(@"C:\Users\cmcgee\Desktop\arbot\config.txt");
             CurrencyManager.LoadCoins();
             CurrencyManager.UpdatePricesBalances();
-            CurrencyManager.StartAsyncUpdates(10000);
+            CurrencyManager.StartAsyncUpdates(20000);
             
             
             //new TestStrategy().Run();

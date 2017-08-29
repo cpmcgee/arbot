@@ -17,7 +17,7 @@ namespace ArbitrageBot.UnitTests
         {
             Config.ImportProperties(@"M:\Source\ArbitrageBot\config.txt");
             //Config.ImportProperties(@"C:\Users\cmcgee\Desktop\arbot\config.txt");
-            Logger.Initialize(5);
+            Logger.Initialize();
         }
 
         [AssemblyCleanup]

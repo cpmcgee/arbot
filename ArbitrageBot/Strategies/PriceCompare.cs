@@ -29,6 +29,7 @@ namespace ArbitrageBot.Strategies
                 Console.ReadLine();
                 foreach (var coin in CurrencyManager.GetCurrencies())
                 {
+                    if (coin.Key == "BCC") continue;
                     double? max = null;
                     double? min = null;
                     double? diff = null;

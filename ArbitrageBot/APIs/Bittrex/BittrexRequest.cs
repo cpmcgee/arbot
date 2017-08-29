@@ -69,6 +69,7 @@ namespace ArbitrageBot.APIs.Bittrex
         /// <returns></returns>
         protected override dynamic GetData()
         {
+            Logger.WRITE(">Sending bittrex GET", LogLevel.Debug);
             if (authenticated)
             {
                 Url += "&nonce=" + Nonce;
@@ -89,7 +90,8 @@ namespace ArbitrageBot.APIs.Bittrex
                     return data;
                 }
                 Logger.WRITE("Unsuccessful bittrex api call: " + Url + "\n" + data.message, LogLevel.Error);
-                return null;
+                response.Close();
+                throw new WebException("Failed api call: Unknown Error");
             }
             catch (WebException wex)
             {
@@ -98,8 +100,6 @@ namespace ArbitrageBot.APIs.Bittrex
                                      .GetResponseStream())
                                      .ReadToEnd();
                 throw new WebException("Failed api call: " + Url + "\n" + error);
-                //Logger.WRITE("Failed to access " + Url + "\n" + error);
-                //return null;
             }
         }
 

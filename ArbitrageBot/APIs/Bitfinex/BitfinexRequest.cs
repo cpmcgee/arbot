@@ -567,12 +567,14 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         protected override dynamic GetData()
         {
+            Logger.WRITE(">Sending bitfinex GET", LogLevel.Debug);
             try
             {
                 var request = ((HttpWebRequest)WebRequest.Create(Url));
                 request.Timeout = TIMEOUT_MILLISECONDS;
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                response.Close();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)
@@ -604,6 +606,7 @@ namespace ArbitrageBot.APIs.Bitfinex
         /// <returns></returns>
         protected override dynamic PostData(object payload)
         {
+            Logger.WRITE(">Sending bitfinex POST", LogLevel.Debug);
             var request = CreateRequest(payload);
             request.Timeout = TIMEOUT_MILLISECONDS;
             try
@@ -612,6 +615,7 @@ namespace ArbitrageBot.APIs.Bitfinex
                 new StreamWriter(request.GetRequestStream()).Write(payload);
                 WebResponse response = request.GetResponse();
                 string raw = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding("utf-8")).ReadToEnd();
+                response.Close();
                 return JsonConvert.DeserializeObject(raw);
             }
             catch (WebException wex)

@@ -104,10 +104,9 @@ namespace ArbitrageBot.CurrencyUtil
             foreach (var obj in coins)
             {
                 string symbol = (string)obj.Currency;
-                if (symbol == "BTC" || !((bool)obj.IsActive)) continue; //only add active coins traded against btc (dont add btc)
+                if (symbol == "BTC")
+                    continue; //only add active coins traded against btc (dont add btc)
                 Currency coin = CurrencyManager.GetCurrency(symbol);
-                if (symbol == "AEON")
-                    return;
                 if (coin == null)
                 {
                     coin = new Currency(symbol);
@@ -211,7 +210,7 @@ namespace ArbitrageBot.CurrencyUtil
                         }
                         catch (Exception ex)
                         {
-                            Logger.WRITE("  currency " + symbol + " was not loaded in bittrex", LogLevel.FunctionalError);
+                            Logger.WRITE("  currency " + symbol + " was not loaded in bittrex", LogLevel.Warning);
                         }
                     }
                 }
@@ -219,29 +218,30 @@ namespace ArbitrageBot.CurrencyUtil
             }
             catch (Exception ex)
             {
-                Logger.WRITE("Failed up update bittrex prices", LogLevel.Error);
+                Logger.WRITE("Failed to update bittrex prices \n" + ex.Message, LogLevel.Error);
             }
         }
         
         internal static void UpdateBitfinexPrices()
         {
-            try
+            //unfortunately bitfinex makes you call the api for each ticker, so we do it in parallel to save time
+            Parallel.ForEach(BitfinexCurrencies, coin =>
             {
-                //unfortunately bitfinex makes you call the api for each ticker, so we do it in parallel to save time
-                Parallel.ForEach(BitfinexCurrencies, coin =>
+                try
                 {
                     var obj = new BitfinexRequest().GetTicker(coin.BitfinexBtcPair);
                     coin.BitfinexAsk = obj.ask;
                     coin.BitfinexBid = obj.bid;
                     coin.BitfinexLast = obj.last_price;
                     coin.BitfinexVolume = obj.volume;
-                });
-                Logger.WRITE("Succesfully updated BITFINEX prices", LogLevel.Info);
-            }
-            catch(Exception ex)
-            {
-                Logger.WRITE("Failed up update bitfinex prices", LogLevel.Error);
-            }
+                    Logger.WRITE("Updated bitfinex price for " + coin.Symbol, LogLevel.Debug);
+                }
+                catch (Exception ex)
+                {
+                    Logger.WRITE("Failed to update bitfinex price for "+ coin.Symbol + "\n" + ex.Message, LogLevel.Error);
+                }
+            });
+            Logger.WRITE("Updated BITFINEX prices", LogLevel.Info);
         }
         
         private static void UpdatePoloniexPrices()
@@ -268,7 +268,7 @@ namespace ArbitrageBot.CurrencyUtil
             }
             catch (Exception ex)
             {
-                Logger.WRITE("Failed up update poloniex prices", LogLevel.Error);
+                Logger.WRITE("Failed to update poloniex prices \n" + ex.Message, LogLevel.Error);
             }
         }
 

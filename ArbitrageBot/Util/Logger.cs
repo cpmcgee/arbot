@@ -25,7 +25,6 @@ namespace ArbitrageBot.Util
         public static StreamWriter sw;
         private static AbstractLogger logger;
         public static int ct = 0;
-        private static int level;
         
         /// <summary>
         /// logger levels:
@@ -33,9 +32,8 @@ namespace ArbitrageBot.Util
         /// 5 - most verbose
         /// </summary>
         /// <param name="level"></param>
-        public static void Initialize(int verbosityLevel)
+        public static void Initialize()
         {
-            level = verbosityLevel;
             string path = Config.GetLogFilePath();
             string fileName = String.Format("{0:MM/dd/yyyy}", DateTime.Now).Replace("/", "-").Replace(":", ".") + ".txt";
             while (File.Exists(path + fileName))
@@ -45,7 +43,7 @@ namespace ArbitrageBot.Util
             fileName = path + fileName;
             sw = new StreamWriter(fileName);
             logger = new FileLogger(LogLevel.All);
-            ConsoleLogger logger1 = logger.SetNext(new ConsoleLogger(LogLevel.Debug)) as ConsoleLogger;
+            ConsoleLogger logger1 = logger.SetNext(new ConsoleLogger(LogLevel.All)) as ConsoleLogger;
         }
         
 

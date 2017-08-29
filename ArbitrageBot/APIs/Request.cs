@@ -9,7 +9,7 @@ namespace ArbitrageBot.APIs
         /// </summary>
         internal string Url { get; set; }
 
-        protected const int TIMEOUT_MILLISECONDS = 5000;
+        protected const int TIMEOUT_MILLISECONDS = 50000;
 
         /// <summary>
         /// gets the current time in millis to include with authenticated api calls
