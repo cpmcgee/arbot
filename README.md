@@ -26,10 +26,4 @@ The OrderManager and Order class function much like a more dynamic version of th
  
 To use authenticated methods you will need to set up your config file and key files which will be processed by the Configuration and KeyLoader classes;
 
-
-Currently Working On:
-  - Implement unit test for exchange classes
-  - Fix logging system
-  - Test buy/sell/cancel/etc with money
-  - Add kraken.io exchange
  
